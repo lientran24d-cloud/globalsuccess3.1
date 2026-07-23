@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lớp Học Cô Linda - Unit 1: HELLO</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Google Fonts: Quicksand -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Quicksand', 'sans-serif'] },
+                    colors: {
+                        bamboo: { 50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 500: '#22c55e', 600: '#16a34a', 700: '#15803d' },
+                        sunny: { 50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' },
+                        sky: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7' },
+                        magic: { 50: '#fdf4ff', 100: '#fae8ff', 200: '#f5d0fe', 500: '#d946ef', 600: '#c026d3' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f0fdf4;
+            background-image: radial-gradient(#bbf7d0 2px, transparent 2px);
+            background-size: 40px 40px;
+        }
+        @keyframes bounce-gentle {
+            0%, 100% { transform: translateY(-5%); }
+            50% { transform: translateY(0); }
+        }
+        .animate-bounce-gentle { animation: bounce-gentle 3s infinite; }
+        
+        /* Ô nhập liệu thông minh */
+        .ex-input {
+            border: none;
+            border-bottom: 3px dashed #d946ef;
+            background-color: #fae8ff;
+            color: #c026d3;
+            font-weight: bold;
+            text-align: center;
+            min-width: 80px;
+            padding: 6px 12px;
+            margin: 0 4px;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s;
+            box-shadow: inset 0 -2px 4px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+        .ex-input:focus { outline: none; border-bottom: 3px solid #c026d3; background-color: #f5d0fe; }
+        
+        .option-btn { transition: all 0.2s ease; }
+        .option-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .option-btn:active:not(:disabled) { transform: translateY(0); }
+
+        .spinner {
+            border: 4px solid rgba(245, 158, 11, 0.2);
+            border-radius: 50%;
+            border-top: 4px solid #f59e0b;
+            width: 40px; height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen py-8 px-4 sm:px-6">
+
+    <div class="max-w-4xl mx-auto space-y-8">
+        
+        <!-- HEADER -->
+        <header class="text-center mb-8 relative">
+            <div class="inline-block bg-white px-10 py-5 rounded-full shadow-lg border-4 border-bamboo-400 mb-4 animate-bounce-gentle">
+                <h1 class="text-4xl sm:text-5xl font-extrabold text-bamboo-600 flex items-center justify-center gap-3">
+                    <span>✨</span> Unit 1: HELLO <span>🌟</span>
+                </h1>
+            </div>
+            
+            <div class="max-w-sm mx-auto mt-2 bg-white p-2 rounded-2xl shadow-md border-2 border-sunny-400 flex items-center gap-2 relative">
+                <span class="text-2xl pl-3">🧑‍🎓</span>
+                <input type="text" id="student-name" class="flex-1 p-2 font-bold text-lg text-slate-700 focus:outline-none bg-transparent" placeholder="Tên của em là gì nhỉ?" oninput="saveProgress()">
+                <button onclick="resetAllProgress()" class="absolute -right-32 top-1 bg-red-100 text-red-600 hover:bg-red-200 text-sm font-bold py-2 px-3 rounded-xl transition shadow-sm" title="Xóa toàn bộ bài làm dở để làm lại từ đầu">Làm mới 🔄</button>
+            </div>
+        </header>
+
+        <!-- PHẦN I: VOCABULARY -->
+        <section class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-sky-400">
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-sky-600 mb-6 border-b-2 border-sky-100 pb-3 flex items-center gap-3">
+                <span class="bg-sky-100 p-2 rounded-xl">I</span> VOCABULARY
+            </h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
+                    <h3 class="font-bold text-sky-700 text-2xl">hello</h3>
+                    <div class="text-sky-600 font-mono text-sm mb-1">/həˈləʊ/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">excl</span></div>
+                    <p class="text-slate-800 font-bold text-lg mb-2">xin chào</p>
+                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: Hello, Ben.</p>
+                </div>
+                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
+                    <h3 class="font-bold text-sky-700 text-2xl">hi</h3>
+                    <div class="text-sky-600 font-mono text-sm mb-1">/haɪ/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">excl</span></div>
+                    <p class="text-slate-800 font-bold text-lg mb-2">xin chào</p>
+                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: Hi, Lucy.</p>
+                </div>
+                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
+                    <h3 class="font-bold text-sky-700 text-2xl">bye</h3>
+                    <div class="text-sky-600 font-mono text-sm mb-1">/baɪ/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">excl</span></div>
+                    <p class="text-slate-800 font-bold text-base mb-2">tạm biệt (bạn bè/trẻ em)</p>
+                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: Bye, Minh.</p>
+                </div>
+                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
+                    <h3 class="font-bold text-sky-700 text-2xl">goodbye</h3>
+                    <div class="text-sky-600 font-mono text-sm mb-1">/ɡʊdˈbaɪ/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">excl</span></div>
+                    <p class="text-slate-800 font-bold text-base mb-2">tạm biệt (người lớn)</p>
+                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: Goodbye, Mr. Loc.</p>
+                </div>
+                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
+                    <h3 class="font-bold text-sky-700 text-2xl">thank you</h3>
+                    <div class="text-sky-600 font-mono text-sm mb-1">/ˈθæŋk juː/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">excl</span></div>
+                    <p class="text-slate-800 font-bold text-lg mb-2">cảm ơn</p>
+                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: Thank you very much.</p>
+                </div>
+                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
+                    <h3 class="font-bold text-sky-700 text-2xl">I</h3>
+                    <div class="text-sky-600 font-mono text-sm mb-1">/aɪ/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">pro</span></div>
+                    <p class="text-slate-800 font-bold text-lg mb-2">tôi</p>
+                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: I am a pupil.</p>
+                </div>
+                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
+                    <h3 class="font-bold text-sky-700 text-2xl">you</h3>
+                    <div class="text-sky-600 font-mono text-sm mb-1">/juː/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">pro</span></div>
+                    <p class="text-slate-800 font-bold text-lg mb-2">bạn</p>
+                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: You are nice.</p>
+                </div>
+                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
+                    <h3 class="font-bold text-sky-700 text-2xl">name</h3>
+                    <div class="text-sky-600 font-mono text-sm mb-1">/neɪm/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">n</span></div>
+                    <p class="text-slate-800 font-bold text-lg mb-2">tên</p>
+                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: What's your name?</p>
+                </div>
+                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
+                    <h3 class="font-bold text-sky-700 text-2xl">how</h3>
+                    <div class="text-sky-600 font-mono text-sm mb-1">/haʊ/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">adv</span></div>
+                    <p class="text-slate-800 font-bold text-lg mb-2">như thế nào</p>
+                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: How are you?</p>
+                </div>
+            </div>
+            
+            <div class="mt-6 bg-slate-50 border-2 border-slate-200 p-4 rounded-xl">
+                <h3 class="font-bold text-slate-700 mb-2">III. PHONICS (Ngữ âm)</h3>
+                <ul class="space-y-1 font-bold text-lg">
+                    <li><span class="text-sky-600">b:</span> bye, boy, ball</li>
+                    <li><span class="text-sky-600">h:</span> hello, house, hot</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- PHẦN II: GRAMMAR -->
+        <section class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-magic-400">
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-magic-600 mb-6 border-b-2 border-magic-100 pb-3 flex items-center gap-3">
+                <span class="bg-magic-100 p-2 rounded-xl">II</span> GRAMMAR
+            </h2>
+            
+            <div class="space-y-6 text-lg font-medium text-slate-700">
+                <div class="bg-magic-50 p-5 rounded-2xl border-2 border-magic-200">
+                    <h3 class="font-bold text-magic-700 text-xl mb-3">a. Nói xin chào và giới thiệu tên</h3>
+                    <ul class="space-y-2 mb-4">
+                        <li><span class="inline-block w-20 text-magic-600 font-bold">Cách 1:</span> Hello / Hi. I'm + tên của mình.</li>
+                        <li><span class="inline-block w-20 text-magic-600 font-bold">Cách 2:</span> Hello, / Hi, + tên người bạn. I'm + tên của mình.</li>
+                    </ul>
+                    <div class="bg-white p-4 rounded-xl border border-magic-100 space-y-1 text-base">
+                        <p><b class="text-slate-800">Ex 1:</b> Hello. I'm Linda. <span class="text-slate-500">(Xin chào. Tớ là Linda.)</span></p>
+                        <p><b class="text-slate-800">Ex 2:</b> Hello, Ben. I'm Minh. <span class="text-slate-500">(Xin chào, Ben. Tớ là Minh.)</span></p>
+                    </div>
+                </div>
+
+                <div class="bg-magic-50 p-5 rounded-2xl border-2 border-magic-200">
+                    <h3 class="font-bold text-magic-700 text-xl mb-3">b. Hỏi thăm sức khỏe</h3>
+                    <ul class="space-y-2">
+                        <li><span class="inline-block w-20 text-magic-600 font-bold">Để hỏi:</span> How are you? <span class="text-slate-500">(Bạn có khỏe không?)</span></li>
+                        <li><span class="inline-block w-20 text-magic-600 font-bold">Trả lời:</span> Fine, thank you. / I'm fine, thank you.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-magic-50 p-5 rounded-2xl border-2 border-magic-200">
+                    <h3 class="font-bold text-magic-700 text-xl mb-3">c. Chào tạm biệt</h3>
+                    <ul class="list-disc pl-6 space-y-1 mb-4">
+                        <li><b class="text-slate-800">Goodbye!</b> – Tạm biệt! <span class="text-slate-500">(Dùng với người lớn tuổi.)</span></li>
+                        <li><b class="text-slate-800">Bye!</b> – Tạm biệt! <span class="text-slate-500">(Dùng với bạn bè.)</span></li>
+                    </ul>
+                    <div class="bg-white p-4 rounded-xl border border-magic-100 text-base">
+                        <ul class="space-y-1">
+                            <li><b class="text-slate-800">See you soon!</b> – Hẹn sớm gặp lại bạn!</li>
+                            <li><b class="text-slate-800">See you later!</b> – Hẹn gặp bạn sau nhé!</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PHẦN III: PRACTICE -->
+        <section class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-sunny-500 relative">
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-sunny-600 mb-6 border-b-2 border-sunny-100 pb-3 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <span class="bg-sunny-100 p-2 rounded-xl">III</span> PRACTICE
+                </div>
+                <div class="bg-sunny-100 text-sunny-700 font-bold px-4 py-2 rounded-full text-base sm:text-lg border-2 border-sunny-200 shadow-inner">
+                    Đã làm: <span id="answered-display">0</span>/<span id="total-questions-display">0</span>
+                </div>
+            </h2>
+
+            <div id="loading" class="flex flex-col items-center justify-center py-16 gap-4">
+                <div class="spinner"></div>
+                <div class="text-sunny-600 font-extrabold text-xl animate-pulse text-center">Đang tải bài tập...</div>
+            </div>
+            
+            <div id="exercises-container" class="space-y-10 hidden">
+                <!-- Nội dung các Exercise sẽ được nối tiếp vào đây -->
+            </div>
+
+            <div id="submit-container" class="mt-10 pt-8 border-t-4 border-dashed border-slate-200 text-center hidden">
+                <button id="main-submit-btn" onclick="submitLesson()" class="bg-gradient-to-r from-bamboo-500 to-bamboo-600 hover:from-bamboo-600 hover:to-bamboo-700 text-white font-extrabold py-4 px-12 rounded-full text-2xl shadow-xl transform hover:scale-105 transition-all inline-flex items-center gap-3 border-4 border-white">
+                    <span>Nộp Bài Ngay</span> 🚀
+                </button>
+                <p id="submit-warning" class="text-red-500 font-bold mt-4 bg-red-50 py-3 px-6 rounded-xl inline-block border border-red-200 shadow-sm hidden"></p>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- MODAL KẾT QUẢ -->
+    <div id="result-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border-8 border-sunny-400 transform scale-95 transition-transform duration-300" id="modal-content">
+            <div class="text-6xl mb-4" id="modal-emoji">🎉</div>
+            <h2 class="text-3xl font-extrabold text-bamboo-600 mb-2" id="modal-title">Chúc mừng em!</h2>
+            
+            <div class="flex justify-center gap-4 mb-6 mt-4">
+                <div class="bg-bamboo-50 border-2 border-bamboo-400 rounded-2xl p-4 w-1/2 shadow-sm">
+                    <div class="text-2xl mb-1">✅</div>
+                    <p class="text-sm text-bamboo-600 font-bold uppercase tracking-wider">Làm đúng</p>
+                    <p class="text-4xl text-bamboo-700 font-extrabold mt-1" id="modal-correct-score">0</p>
+                </div>
+                <div class="bg-red-50 border-2 border-red-400 rounded-2xl p-4 w-1/2 shadow-sm">
+                    <div class="text-2xl mb-1">❌</div>
+                    <p class="text-sm text-red-600 font-bold uppercase tracking-wider">Làm sai</p>
+                    <p class="text-4xl text-red-700 font-extrabold mt-1" id="modal-incorrect-score">0</p>
+                </div>
+            </div>
+            <button onclick="closeModal()" class="w-full bg-bamboo-500 hover:bg-bamboo-600 text-white font-bold py-4 px-8 rounded-full text-xl shadow-lg transition-colors duration-200">
+                Xem lại lỗi sai 🔍
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // KẾT NỐI SUPABASE
+        const SUPABASE_URL = 'https://afpttabeioqthytdwduk.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmcHR0YWJlaW9xdGh5dGR3ZHVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMjQ0NzcsImV4cCI6MjA5OTgwMDQ3N30.jlEFCUKQM5rWTM59rJnpvRjfh9Wkcoxt-fKqH__GtVU';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        let exercisesData = [];
+        let userAnswers = {}; 
+        let wordBanksData = {}; 
+
+        const STORAGE_KEY = 'unit1_linda_progress';
+
+        async function fetchExercises() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('exercises')
+                    .select('*')
+                    .order('id', { ascending: true });
+
+                if (error) throw error;
+                if (data.length === 0) throw new Error("Chưa có bài tập nào.");
+
+                exercisesData = data;
+                renderExercisesGrouped(data);
+                
+                loadProgress();
+            } catch (error) {
+                document.getElementById('loading').innerHTML = `
+                    <div class="text-6xl mb-4">😥</div>
+                    <div class="text-red-500 font-bold text-xl text-center">Lỗi tải dữ liệu:<br>${error.message}</div>
+                `;
+            }
+        }
+
+        function renderExercisesGrouped(data) {
+            const container = document.getElementById('exercises-container');
+            document.getElementById('loading').classList.add('hidden');
+            container.classList.remove('hidden');
+            document.getElementById('submit-container').classList.remove('hidden');
+            document.getElementById('total-questions-display').innerText = data.length;
+
+            let groupedData = {};
+            data.forEach(q => {
+                let exName = q.exercise_name || "Exercise";
+                if (!groupedData[exName]) groupedData[exName] = [];
+                groupedData[exName].push(q);
+            });
+
+            for (const [exName, questions] of Object.entries(groupedData)) {
+                const exBlock = document.createElement('div');
+                exBlock.className = 'bg-slate-50 border-2 border-slate-200 p-5 rounded-2xl shadow-sm relative';
+                
+                const exHeader = document.createElement('h3');
+                exHeader.className = 'text-xl font-extrabold text-sunny-600 mb-5 border-b-2 border-slate-200 pb-3 flex items-center gap-2';
+                exHeader.innerHTML = `<span>📋</span> ${exName}`;
+                exBlock.appendChild(exHeader);
+
+                // Word Bank Logic
+                const hasWordBank = questions.some(q => q.use_word_bank);
+                if (hasWordBank) {
+                    let words = [];
+                    questions.forEach(q => {
+                        if(q.use_word_bank && q.correct_answer) {
+                            words = words.concat(q.correct_answer.split(',').map(w => w.trim()));
+                        }
+                    });
+                    words.sort(() => Math.random() - 0.5); 
+                    wordBanksData[exName] = words;
+                    
+                    const wbHtml = `
+                        <div class="bg-white border-2 border-magic-200 p-4 rounded-xl mb-6 shadow-sm sticky top-4 z-10">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="font-bold text-magic-600 text-sm">🏷️ CHỌN TỪ ĐỂ ĐIỀN:</div>
+                                <div class="text-xs bg-magic-100 text-magic-600 px-2 py-1 rounded animate-pulse">Bấm vào từ</div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 word-bank-words" data-exname="${exName}">
+                                ${words.map(w => `<button type="button" onclick="fillWordBank('${exName}', '${w}')" class="bg-magic-50 text-magic-700 hover:bg-magic-200 hover:scale-105 transition transform px-4 py-2 rounded-lg border border-magic-300 font-bold shadow-sm">${w}</button>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                    exBlock.insertAdjacentHTML('beforeend', wbHtml);
+                }
+
+                let isEx4 = exName.includes('Exercise 4');
+                const itemsContainer = document.createElement('div');
+                if (isEx4) {
+                    itemsContainer.className = 'grid grid-cols-2 md:grid-cols-3 gap-6';
+                } else {
+                    itemsContainer.className = 'space-y-6';
+                }
+                
+                questions.forEach((q, index) => {
+                    const qItem = document.createElement('div');
+                    
+                    if (isEx4) {
+                        qItem.className = 'bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center text-center';
+                    } else {
+                        qItem.className = 'bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm';
+                    }
+                    qItem.id = `q-item-${q.id}`;
+
+                    const qFlex = document.createElement('div');
+                    if (isEx4) {
+                        qFlex.className = 'flex flex-col items-center w-full';
+                    } else {
+                        qFlex.className = 'flex gap-3 items-start w-full';
+                    }
+
+                    const qNum = document.createElement('div');
+                    if (isEx4) {
+                        qNum.className = 'font-bold text-slate-500 mb-2';
+                        qNum.innerText = `${index + 1}.`;
+                    } else {
+                        qNum.className = 'font-bold text-white bg-slate-300 w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5';
+                        qNum.innerText = index + 1;
+                    }
+                    
+                    const qContent = document.createElement('div');
+                    qContent.className = 'w-full text-lg font-medium text-slate-800 leading-relaxed';
+
+                    let imageHtml = '';
+                    if (q.image_url) {
+                        imageHtml = `<div class="w-full flex justify-center mb-3"><img src="${q.image_url}" class="h-32 object-contain rounded-lg"></div>`;
+                    }
+
+                    let qText = q.question.replace(/^\d+\.\s*/, '');
+
+                    // TRẮC NGHIỆM ĐẸP
+                    if (q.question_type === 'multiple_choice' || q.question_type === 'true_false') {
+                        qContent.innerHTML = `${imageHtml}<div class="mb-4">${qText}</div>`;
+                        let options = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
+                        
+                        const gridClass = options.length === 4 ? 'grid grid-cols-1 sm:grid-cols-2 gap-3' : 'space-y-3';
+                        const optionsDiv = document.createElement('div');
+                        optionsDiv.className = `${gridClass} w-full`;
+                        
+                        options.forEach(opt => {
+                            const btn = document.createElement('button');
+                            btn.className = `option-btn w-full text-left p-3 rounded-xl border-2 border-slate-200 bg-slate-50 font-bold text-base text-slate-600 flex items-center gap-3`;
+                            btn.id = `btn-${q.id}-${opt.id}`;
+                            
+                            const iconText = (q.question_type === 'true_false' && opt.id === 'True') ? 'T' : 
+                                             (q.question_type === 'true_false' && opt.id === 'False') ? 'F' : opt.id;
+                            
+                            btn.innerHTML = `<span class="inline-block w-8 h-8 rounded-full bg-white text-slate-500 flex items-center justify-center border border-slate-300 shrink-0 indicator-circle">${iconText}</span> <span>${opt.text}</span>`;
+                            btn.onclick = () => handleChoiceAnswer(q.id, opt.id, q.question_type);
+                            optionsDiv.appendChild(btn);
+                        });
+                        qContent.appendChild(optionsDiv);
+                    } 
+                    // SẮP XẾP TỪ
+                    else if (exName.includes('Exercise 14') || exName.includes('Reorder')) {
+                        const parts = qText.split('➔');
+                        const scrambleStr = parts[0].replace(/<br>/g, '').trim();
+                        
+                        const words = scrambleStr.split('/')
+                            .map(w => w.replace(/^\d+\.\s*/g, '').replace(/[.,?!]/g, '').trim())
+                            .filter(w => w !== '');
+                        
+                        const chipsHtml = words.map((w, wIdx) => `<button type="button" id="reorder-btn-${q.id}-${wIdx}" onclick="appendReorderWord('${q.id}', '${w}', ${wIdx})" class="reorder-btn-${q.id} bg-blue-50 text-blue-700 hover:bg-blue-200 px-3 py-2 rounded-lg border border-blue-200 font-bold shadow-sm transition active:scale-95">${w}</button>`).join('');
+                        
+                        qContent.innerHTML = `
+                            ${imageHtml}
+                            <div class="mb-3 text-sm text-slate-500 italic">Bấm vào các mảnh ghép để sắp xếp thành câu:</div>
+                            <div class="flex flex-wrap gap-2 mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200">${chipsHtml}</div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sunny-500 font-bold text-xl">➔</span> 
+                                <input type="text" id="input-ex-${q.id}" class="ex-input input-ex w-full text-left px-3 text-blue-700" placeholder="Câu hoàn chỉnh..." readonly>
+                                <button type="button" onclick="clearReorder('${q.id}')" class="bg-slate-200 text-slate-600 px-3 py-2 rounded-lg font-bold text-sm hover:bg-red-100 hover:text-red-500 transition border border-slate-300 shrink-0">Xóa chọn lại</button>
+                            </div>
+                        `;
+                    }
+                    // BÀI TẬP ĐIỀN CHỮ / CÂU
+                    else if (q.question_type === 'input') {
+                        const inputClass = q.use_word_bank ? 'ex-input word-bank-target cursor-pointer' : 'ex-input';
+                        const clearEvent = q.use_word_bank ? `onclick="if(this.value){this.value=''; handleInput('${q.id}');}" title="Bấm để xóa từ"` : '';
+
+                        if (isEx4) {
+                            qText = qText.replace('___', `<input type="text" id="input-ex-${q.id}" class="${inputClass} input-ex" style="min-width:60px; width:60px;" placeholder="..." autocomplete="off" oninput="handleInput('${q.id}')" ${clearEvent}>`);
+                            qContent.innerHTML = `${imageHtml}<div class="font-mono text-xl tracking-wider font-bold mt-2">${qText}</div>`;
+                        } else {
+                            let hasBlank = false;
+                            qText = qText.replace(/(_{3,}|\.{3,})/g, () => {
+                                hasBlank = true;
+                                return `<input type="text" id="input-ex-${q.id}" class="${inputClass} input-ex" placeholder="..." autocomplete="off" oninput="handleInput('${q.id}')" ${clearEvent}>`;
+                            });
+                            
+                            if (!hasBlank) {
+                                qText += ` <span class="text-sunny-500 font-bold">➔</span> <input type="text" id="input-ex-${q.id}" class="${inputClass} input-ex w-auto min-w-[150px]" placeholder="Viết đáp án..." autocomplete="off" oninput="handleInput('${q.id}')" ${clearEvent}>`;
+                            }
+                            qContent.innerHTML = `${imageHtml}<div class="text-xl tracking-wide">${qText}</div>`;
+                        }
+                    }
+
+                    const feedbackDiv = document.createElement('div');
+                    feedbackDiv.id = `feedback-${q.id}`;
+                    feedbackDiv.className = 'mt-4 hidden rounded-xl p-4 text-base font-medium border-2 w-full text-left';
+
+                    if (!isEx4) {
+                        qFlex.appendChild(qNum);
+                    } else {
+                        qContent.insertBefore(qNum, qContent.firstChild);
+                    }
+                    
+                    qFlex.appendChild(qContent);
+                    qItem.appendChild(qFlex);
+                    qItem.appendChild(feedbackDiv);
+                    
+                    itemsContainer.appendChild(qItem);
+                });
+
+                exBlock.appendChild(itemsContainer);
+                container.appendChild(exBlock);
+            }
+        }
+
+        function saveProgress() {
+            const studentName = document.getElementById('student-name').value.trim();
+            const progressObj = { name: studentName, answers: userAnswers };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(progressObj));
+        }
+
+        function loadProgress() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                const progressObj = JSON.parse(savedData);
+                
+                if (progressObj.name) {
+                    document.getElementById('student-name').value = progressObj.name;
+                }
+
+                if (progressObj.answers) {
+                    userAnswers = progressObj.answers;
+                    
+                    for (const [qId, ans] of Object.entries(userAnswers)) {
+                        const q = exercisesData.find(e => e.id == qId);
+                        if (!q) continue;
+
+                        if (q.question_type === 'input') {
+                            const inputElem = document.getElementById(`input-ex-${qId}`);
+                            if (inputElem) inputElem.value = ans;
+
+                            if (q.exercise_name && (q.exercise_name.includes('Exercise 14') || q.exercise_name.includes('Reorder'))) {
+                                const restoredWords = ans.split(' ');
+                                restoredWords.forEach(w => {
+                                    const btns = document.querySelectorAll(`.reorder-btn-${qId}:not(.opacity-30)`);
+                                    for (let btn of btns) {
+                                        if (btn.innerText === w) {
+                                            btn.classList.add('opacity-30', 'pointer-events-none');
+                                            break;
+                                        }
+                                    }
+                                });
+                            }
+
+                        } else {
+                            const btn = document.getElementById(`btn-${qId}-${ans}`);
+                            if (btn) {
+                                btn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 bg-sunny-50 border-sunny-400 text-sunny-700 font-bold text-base flex items-center gap-3 shadow-sm';
+                                btn.querySelector('.indicator-circle').className = 'inline-block w-8 h-8 rounded-full bg-sunny-400 text-white flex items-center justify-center border border-sunny-400 shrink-0 font-black text-lg';
+                            }
+                        }
+                    }
+                    
+                    updateAnswerCount();
+                    for (const exName of Object.keys(wordBanksData)) {
+                        updateWordBankUI(exName);
+                    }
+                }
+            }
+        }
+
+        window.resetAllProgress = function() {
+            if(confirm("Em có chắc chắn muốn xóa toàn bộ bài làm để bắt đầu lại không?")) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload(); 
+            }
+        }
+
+        window.appendReorderWord = function(qId, word, wIdx) {
+            const btn = document.getElementById(`reorder-btn-${qId}-${wIdx}`);
+            if (btn.classList.contains('opacity-30')) return; 
+            
+            btn.classList.add('opacity-30', 'pointer-events-none');
+            
+            const input = document.getElementById(`input-ex-${qId}`);
+            if (input.value.trim() === "") {
+                input.value = word;
+            } else {
+                input.value += " " + word;
+            }
+            handleInput(qId);
+        }
+
+        window.clearReorder = function(qId) {
+            document.getElementById(`input-ex-${qId}`).value = "";
+            document.querySelectorAll(`.reorder-btn-${qId}`).forEach(b => b.classList.remove('opacity-30', 'pointer-events-none'));
+            handleInput(qId);
+        }
+
+        window.fillWordBank = function(exName, word) {
+            const questions = exercisesData.filter(q => q.exercise_name === exName);
+            for (let q of questions) {
+                const input = document.getElementById(`input-ex-${q.id}`);
+                if (input && input.classList.contains('word-bank-target') && input.value.trim() === "" && !input.disabled) {
+                    input.value = word;
+                    handleInput(q.id);
+                    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    break;
+                }
+            }
+        }
+
+        function updateWordBankUI(exName) {
+            const container = document.querySelector(`.word-bank-words[data-exname="${exName}"]`);
+            if (!container) return;
+
+            const questions = exercisesData.filter(q => q.exercise_name === exName);
+            let usedWords = [];
+            questions.forEach(q => {
+                const input = document.getElementById(`input-ex-${q.id}`);
+                if (input && input.value.trim() !== "") usedWords.push(input.value.trim().toLowerCase());
+            });
+
+            let tempUsed = [...usedWords];
+            let originalWords = wordBanksData[exName];
+
+            container.innerHTML = originalWords.map(w => {
+                const wordLower = w.toLowerCase();
+                const indexInUsed = tempUsed.indexOf(wordLower);
+                
+                if (indexInUsed !== -1) {
+                    tempUsed.splice(indexInUsed, 1);
+                    return `<button type="button" class="bg-slate-100 text-slate-400 px-4 py-2 rounded-lg border border-slate-200 font-bold opacity-50 cursor-default">✔️ ${w}</button>`;
+                } else {
+                    return `<button type="button" onclick="fillWordBank('${exName}', '${w}')" class="bg-magic-50 text-magic-700 hover:bg-magic-200 hover:scale-105 transition transform px-4 py-2 rounded-lg border border-magic-300 font-bold shadow-sm">${w}</button>`;
+                }
+            }).join('');
+        }
+
+        window.handleInput = function(qId) {
+            const input = document.getElementById(`input-ex-${qId}`);
+            if (input && input.value.trim() !== "") {
+                userAnswers[qId] = input.value.trim(); 
+            } else {
+                delete userAnswers[qId];
+            }
+            
+            const q = exercisesData.find(e => e.id == qId);
+            if (q && q.use_word_bank) updateWordBankUI(q.exercise_name);
+            
+            updateAnswerCount();
+            saveProgress(); 
+        }
+
+        window.handleChoiceAnswer = function(qId, selectedOptId, type) {
+            const q = exercisesData.find(e => e.id == qId);
+            let options = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
+
+            options.forEach(opt => {
+                const btn = document.getElementById(`btn-${qId}-${opt.id}`);
+                const iconText = (type === 'true_false' && opt.id === 'True') ? 'T' : (type === 'true_false' && opt.id === 'False') ? 'F' : opt.id;
+
+                if (opt.id === selectedOptId) {
+                    btn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 bg-sunny-50 border-sunny-400 text-sunny-700 font-bold text-base flex items-center gap-3 shadow-sm';
+                    btn.querySelector('.indicator-circle').className = 'inline-block w-8 h-8 rounded-full bg-sunny-400 text-white flex items-center justify-center border border-sunny-400 shrink-0 font-black text-lg';
+                } else {
+                    btn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 border-slate-200 bg-slate-50 font-bold text-base text-slate-500 flex items-center gap-3 hover:bg-slate-100 transition';
+                    btn.querySelector('.indicator-circle').className = 'inline-block w-8 h-8 rounded-full bg-white text-slate-400 flex items-center justify-center border border-slate-300 shrink-0 font-black text-lg';
+                }
+            });
+
+            userAnswers[qId] = selectedOptId;
+            updateAnswerCount();
+            saveProgress(); 
+        }
+
+        function updateAnswerCount() {
+            const count = Object.keys(userAnswers).length;
+            document.getElementById('answered-display').innerText = count;
+            if (count === exercisesData.length) {
+                document.getElementById('submit-warning').classList.add('hidden');
+            }
+        }
+
+        function normalizeString(str) {
+            return String(str).toLowerCase().replace(/[^a-z0-9]/g, ''); 
+        }
+
+        window.submitLesson = async function() {
+            const studentName = document.getElementById('student-name').value.trim();
+            const warning = document.getElementById('submit-warning');
+            
+            if (!studentName) {
+                warning.innerHTML = `⚠️ Em hãy nhập <b>Tên của mình</b> ở góc trên cùng nhé!`;
+                warning.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
+            const answeredCount = Object.keys(userAnswers).length;
+            if (answeredCount < exercisesData.length) {
+                warning.innerHTML = `⚠️ Em mới làm <b>${answeredCount}/${exercisesData.length}</b> câu. Hãy hoàn thành nốt nhé!`;
+                warning.classList.remove('hidden');
+                return;
+            }
+
+            const btn = document.getElementById('main-submit-btn');
+            btn.innerHTML = `<div class="spinner border-t-white w-6 h-6 mr-2"></div> Đang chấm điểm...`;
+            btn.disabled = true;
+            warning.classList.add('hidden');
+
+            let score = 0;
+            let mistakesList = [];
+            
+            exercisesData.forEach(ex => {
+                const feedbackDiv = document.getElementById(`feedback-${ex.id}`);
+                const qItem = document.getElementById(`q-item-${ex.id}`);
+                let isCorrect = false;
+                let correctDisplay = ex.correct_answer;
+
+                if (ex.question_type === 'input') {
+                    const input = document.getElementById(`input-ex-${ex.id}`);
+                    input.disabled = true; 
+                    const userStr = userAnswers[ex.id] || "";
+                    isCorrect = normalizeString(userStr) === normalizeString(ex.correct_answer);
+                    
+                    const clearBtn = qItem.querySelector('button[onclick^="clearReorder"]');
+                    if (clearBtn) clearBtn.remove();
+                } else {
+                    let options = typeof ex.options === 'string' ? JSON.parse(ex.options) : ex.options;
+                    options.forEach(opt => document.getElementById(`btn-${ex.id}-${opt.id}`).disabled = true);
+                    
+                    const userStr = userAnswers[ex.id];
+                    isCorrect = (userStr === ex.correct_answer);
+                    
+                    const correctOpt = options.find(o => o.id === ex.correct_answer);
+                    correctDisplay = correctOpt ? correctOpt.text : ex.correct_answer;
+                }
+
+                feedbackDiv.classList.remove('hidden');
+                if (isCorrect) {
+                    score++;
+                    qItem.classList.add('bg-bamboo-50', 'border-bamboo-200');
+                    qItem.classList.remove('bg-white', 'border-slate-100');
+                    feedbackDiv.className = 'mt-3 rounded-xl p-4 text-base font-bold bg-white border border-bamboo-300 text-bamboo-600 shadow-sm flex items-start gap-2 w-full text-left';
+                    feedbackDiv.innerHTML = `<span>✅</span> <div>Chính xác! Xuất sắc!</div>`;
+                } else {
+                    // Ghi nhận bài tập học sinh làm sai
+                    mistakesList.push(ex.exercise_name);
+                    
+                    qItem.classList.add('bg-red-50', 'border-red-200');
+                    qItem.classList.remove('bg-white', 'border-slate-100');
+                    feedbackDiv.className = 'mt-4 rounded-xl p-4 text-base border-2 border-red-200 bg-white shadow-sm w-full text-left';
+                    
+                    feedbackDiv.innerHTML = `
+                        <div class="font-extrabold text-red-500 mb-2 flex items-center gap-2"><span>❌</span> Chưa chính xác!</div>
+                        <div class="text-slate-700 mb-3 bg-slate-50 p-2 rounded border border-slate-200">
+                            👉 Đáp án đúng là: <span class="bg-bamboo-100 text-bamboo-700 px-2 py-1 rounded font-bold border border-bamboo-200">${correctDisplay}</span>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-200 text-slate-700 text-sm">
+                            <b class="text-blue-600 block mb-1">💡 Tại sao nhỉ?</b> ${ex.explanation || 'Hãy đọc lại kỹ phần Lý Thuyết phía trên nhé!'}
+                        </div>
+                    `;
+                }
+            });
+
+            // TẠO LỜI KHUYÊN HỌC TẬP TỰ ĐỘNG DỰA TRÊN LỖI SAI
+            let uniqueMistakes = Array.from(new Set(mistakesList));
+            let recommendations = "Xuất sắc! Em đã nắm rất vững kiến thức.";
+            if (uniqueMistakes.length > 0) {
+                recommendations = "Cần ôn tập lại lý thuyết và cẩn thận hơn ở các phần: " + uniqueMistakes.join(', ') + ".";
+            }
+
+            // GỬI KẾT QUẢ VÀ BẢN PHÂN TÍCH LÊN SỔ ĐIỂM SUPABASE
+            try {
+                await supabaseClient.from('results').insert([{
+                    student_name: studentName,
+                    unit: 'Unit 1: HELLO',
+                    exercises_done: 'Đã hoàn thành toàn bộ 14 bài tập',
+                    correct_count: score,
+                    incorrect_count: exercisesData.length - score,
+                    recommendations: recommendations
+                }]);
+            } catch (err) {
+                console.error("Lỗi khi lưu vào sổ điểm:", err);
+            }
+
+            document.getElementById('submit-container').classList.add('hidden');
+            document.querySelectorAll('.word-bank-words').forEach(el => el.parentElement.remove());
+            
+            localStorage.removeItem(STORAGE_KEY);
+
+            const totalQs = exercisesData.length;
+            document.getElementById('modal-correct-score').innerText = score;
+            document.getElementById('modal-incorrect-score').innerText = totalQs - score;
+            
+            const ratio = score / totalQs;
+            if (ratio === 1) {
+                document.getElementById('modal-title').innerText = "Điểm Tối Đa!";
+                document.getElementById('modal-emoji').innerText = "🏆";
+                fireConfetti();
+            } else if (ratio >= 0.7) {
+                document.getElementById('modal-title').innerText = "Rất Giỏi!";
+                document.getElementById('modal-emoji').innerText = "🌟";
+                fireConfetti();
+            } else {
+                document.getElementById('modal-title').innerText = "Cố gắng lên nhé!";
+                document.getElementById('modal-title').className = "text-3xl font-extrabold text-blue-500 mb-2";
+                document.getElementById('modal-emoji').innerText = "💪";
+            }
+
+            document.getElementById('result-modal').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('modal-content').classList.remove('scale-95');
+                document.getElementById('modal-content').classList.add('scale-100');
+            }, 10);
+        }
+
+        window.closeModal = function() {
+            document.getElementById('result-modal').classList.add('hidden');
+            document.getElementById('modal-content').classList.remove('scale-100');
+            document.getElementById('modal-content').classList.add('scale-95');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function fireConfetti() {
+            var duration = 3 * 1000, animationEnd = Date.now() + duration, defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        window.onload = fetchExercises;
+    </script>
+</body>
+</html>
