@@ -19,23 +19,17 @@
         .animate-bounce-gentle { animation: bounce-gentle 3s infinite; }
         .ex-input { border: none; border-bottom: 3px dashed #d946ef; background-color: #fae8ff; color: #c026d3; font-weight: bold; text-align: center; padding: 6px 12px; margin: 0 4px; border-radius: 8px 8px 0 0; transition: all 0.3s; cursor: pointer; }
         .ex-input:focus { outline: none; border-bottom: 3px solid #c026d3; background-color: #f5d0fe; }
-        .option-btn { transition: all 0.2s ease; }
-        .option-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .option-btn:active:not(:disabled) { transform: translateY(0); }
+        .option-btn { transition: all 0.2s ease; cursor: pointer; }
+        .option-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         .spinner { border: 4px solid rgba(245, 158, 11, 0.2); border-radius: 50%; border-top: 4px solid #f59e0b; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .audio-btn { transition: transform 0.1s; } .audio-btn:active { transform: scale(0.9); }
     </style>
 </head>
-<body class="text-slate-800 min-h-screen py-8 px-4 sm:px-6 relative">
+<body class="text-slate-800 min-h-screen py-8 px-4 sm:px-6">
 
-    <!-- DẤU HIỆU NHẬN BIẾT PHIÊN BẢN CHUẨN ĐỂ TRÁNH LỖI CACHE TRÌNH DUYỆT -->
-    <div class="fixed top-0 right-0 bg-red-100 text-red-600 font-bold text-sm px-4 py-2 rounded-bl-2xl shadow-md border-b border-l border-red-200 z-50 animate-pulse">
-        Phiên bản 3.0 (Bản Chuẩn)
-    </div>
-
-    <div class="max-w-4xl mx-auto space-y-8 pt-4">
+    <div class="max-w-4xl mx-auto space-y-8">
         
         <!-- HEADER -->
         <header class="text-center mb-8 relative">
@@ -61,13 +55,6 @@
                 <div class="spinner border-t-sky-500"></div><div class="text-sky-600 font-bold">Đang tải từ vựng...</div>
             </div>
             <div id="vocabulary-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
-            <div class="mt-6 bg-slate-50 border-2 border-slate-200 p-4 rounded-xl">
-                <h3 class="font-bold text-slate-700 mb-2">III. PHONICS (Ngữ âm)</h3>
-                <ul class="space-y-1 font-bold text-lg">
-                    <li><span class="text-sky-600">b:</span> bye, boy, ball</li>
-                    <li><span class="text-sky-600">h:</span> hello, house, hot</li>
-                </ul>
-            </div>
         </section>
 
         <!-- PHẦN II: GRAMMAR -->
@@ -81,20 +68,6 @@
                     <ul class="space-y-2 mb-4">
                         <li><span class="inline-block w-20 text-magic-600 font-bold">Cách 1:</span> Hello / Hi. I'm + tên của mình.</li>
                         <li><span class="inline-block w-20 text-magic-600 font-bold">Cách 2:</span> Hello, / Hi, + tên người bạn. I'm + tên của mình.</li>
-                    </ul>
-                </div>
-                <div class="bg-magic-50 p-5 rounded-2xl border-2 border-magic-200">
-                    <h3 class="font-bold text-magic-700 text-xl mb-3">b. Hỏi thăm sức khỏe</h3>
-                    <ul class="space-y-2">
-                        <li><span class="inline-block w-20 text-magic-600 font-bold">Để hỏi:</span> How are you?</li>
-                        <li><span class="inline-block w-20 text-magic-600 font-bold">Trả lời:</span> Fine, thank you. / I'm fine, thank you.</li>
-                    </ul>
-                </div>
-                <div class="bg-magic-50 p-5 rounded-2xl border-2 border-magic-200">
-                    <h3 class="font-bold text-magic-700 text-xl mb-3">c. Chào tạm biệt</h3>
-                    <ul class="list-disc pl-6 space-y-1">
-                        <li><b class="text-slate-800">Goodbye!</b> – Tạm biệt! (người lớn tuổi)</li>
-                        <li><b class="text-slate-800">Bye!</b> – Tạm biệt! (bạn bè)</li>
                     </ul>
                 </div>
             </div>
@@ -157,7 +130,7 @@
         let exercisesData = [];
         let userAnswers = {}; 
         let wordBanksData = {}; 
-        const STORAGE_KEY = 'unit1_linda_progress_v3'; // Cập nhật key để tránh lấy lại bài nháp cũ bị lỗi
+        const STORAGE_KEY = 'unit1_linda_progress_v5';
 
         async function fetchVocabulary() {
             try {
@@ -174,7 +147,6 @@
         }
         window.playVocabAudio = function(url) { document.getElementById('vocab-audio').src = url; document.getElementById('vocab-audio').play(); }
 
-        // BỘ LỌC ĐẶC TRỊ - KHÔI PHỤC TOÀN BỘ LỖI TỪ DATABASE
         async function fetchExercises() {
             try {
                 const { data, error } = await supabaseClient.from('exercises').select('*').eq('unit', 'Unit 1').order('id', { ascending: true });
@@ -183,23 +155,14 @@
 
                 data.forEach(q => {
                     if (q.question_type === 'multiple_choice' || q.question_type === 'true_false') {
-                        let options = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
-                        // Sinh mã A, B, C, D, E tuyệt đối an toàn
-                        q.options = options.map((opt, idx) => {
-                            let newId = (q.question_type === 'true_false') 
+                        let rawOptions = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
+                        q.options = rawOptions.map((opt, idx) => {
+                            let optionId = (q.question_type === 'true_false') 
                                 ? (idx === 0 ? 'True' : 'False') 
                                 : String.fromCharCode(65 + idx); 
-                            return { id: newId, text: opt.text };
+                            return { id: optionId, text: opt.text || opt };
                         });
-                        
-                        // Ghép đôi chuẩn xác cột correct_answer với mã A, B, C, D, E vừa sinh ra
-                        if (q.correct_answer && q.question_type === 'multiple_choice') {
-                            let rawAns = q.correct_answer.replace(/<[^>]*>?/gm, '').trim();
-                            q.correct_answer = rawAns.charAt(0).toUpperCase(); 
-                        } else if (q.correct_answer && q.question_type === 'true_false') {
-                            let rawAns = q.correct_answer.replace(/<[^>]*>?/gm, '').trim().toLowerCase();
-                            q.correct_answer = rawAns.includes('true') ? 'True' : 'False';
-                        }
+                        if (q.correct_answer) q.correct_answer = String(q.correct_answer).trim();
                     }
                 });
 
@@ -238,10 +201,7 @@
                         <div class="bg-white border-2 border-magic-200 p-4 rounded-xl mb-6 shadow-sm sticky top-4 z-10">
                             <div class="font-bold text-magic-600 text-sm mb-2">🏷️ CHỌN TỪ ĐỂ ĐIỀN:</div>
                             <div class="flex flex-wrap gap-2 word-bank-words" data-exname="${exName}">
-                                ${words.map(w => {
-                                    let safeW = w.replace(/"/g, '&quot;'); // Cực kỳ an toàn với nháy đơn
-                                    return `<button type="button" data-word="${safeW}" onclick="fillWordBank('${exName}', this.getAttribute('data-word'))" class="bg-magic-50 text-magic-700 hover:bg-magic-200 hover:scale-105 transition px-4 py-2 rounded-lg border border-magic-300 font-bold shadow-sm">${w}</button>`;
-                                }).join('')}
+                                ${words.map(w => `<button type="button" data-word="${w.replace(/"/g, '&quot;')}" onclick="fillWordBank('${exName}', this.getAttribute('data-word'))" class="bg-magic-50 text-magic-700 hover:bg-magic-200 hover:scale-105 transition px-4 py-2 rounded-lg border border-magic-300 font-bold shadow-sm">${w}</button>`).join('')}
                             </div>
                         </div>
                     `;
@@ -269,7 +229,6 @@
                     let imageHtml = q.image_url ? `<div class="w-full flex justify-center mb-3"><img src="${q.image_url}" class="h-32 object-contain rounded-lg"></div>` : '';
                     let qText = q.question.replace(/^\d+\.\s*/, '');
 
-                    // TRẮC NGHIỆM ĐÃ SỬA DỨT ĐIỂM
                     if (q.question_type === 'multiple_choice' || q.question_type === 'true_false') {
                         let options = q.options;
                         const optionsDiv = document.createElement('div');
@@ -277,8 +236,11 @@
                         
                         options.forEach(opt => {
                             const btn = document.createElement('button');
+                            btn.type = 'button';
                             btn.className = `option-btn w-full text-left p-3 rounded-xl border-2 border-slate-200 bg-slate-50 font-bold text-base text-slate-600 flex items-center gap-3`;
-                            btn.setAttribute('data-optid', opt.id); // KHÓA ID AN TOÀN
+                            btn.setAttribute('data-qid', q.id);
+                            btn.setAttribute('data-optid', opt.id);
+                            
                             btn.innerHTML = `<span class="inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-white text-slate-500 flex items-center justify-center border border-slate-300 shrink-0 indicator-circle text-sm">${opt.id}</span> <span>${opt.text}</span>`;
                             btn.onclick = () => handleChoiceAnswer(q.id, opt.id);
                             optionsDiv.appendChild(btn);
@@ -286,16 +248,11 @@
                         qContent.innerHTML = `${imageHtml}<div class="mb-4">${qText}</div>`;
                         qContent.appendChild(optionsDiv);
                     } 
-                    // SẮP XẾP TỪ
                     else if (exName.includes('Exercise 14') || exName.includes('Reorder')) {
                         const words = qText.split('➔')[0].replace(/<br>/g, '').trim().split('/').map(w => w.replace(/^\d+\.\s*/g, '').replace(/[.,?!]/g, '').trim()).filter(w => w !== '');
-                        const chipsHtml = words.map((w, wIdx) => {
-                            let safeW = w.replace(/"/g, '&quot;');
-                            return `<button type="button" id="reorder-btn-${q.id}-${wIdx}" data-word="${safeW}" onclick="appendReorderWord('${q.id}', this.getAttribute('data-word'), ${wIdx})" class="reorder-btn-${q.id} bg-blue-50 text-blue-700 hover:bg-blue-200 px-3 py-2 rounded-lg border border-blue-200 font-bold shadow-sm active:scale-95 transition">${w}</button>`;
-                        }).join('');
-                        qContent.innerHTML = `${imageHtml}<div class="mb-3 text-sm text-slate-500 italic">Bấm vào các mảnh ghép để sắp xếp thành câu:</div><div class="flex flex-wrap gap-2 mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200">${chipsHtml}</div><div class="flex items-center gap-2"><span class="text-sunny-500 font-bold text-xl">➔</span> <input type="text" id="input-ex-${q.id}" class="ex-input w-full text-left px-3 text-blue-700" placeholder="Câu hoàn chỉnh..." readonly> <button type="button" onclick="clearReorder('${q.id}')" class="bg-slate-200 text-slate-600 px-3 py-2 rounded-lg font-bold text-sm hover:bg-red-100 hover:text-red-500 shrink-0">Xóa</button></div>`;
+                        const chipsHtml = words.map((w, wIdx) => `<button type="button" id="reorder-btn-${q.id}-${wIdx}" data-word="${w.replace(/"/g, '&quot;')}" onclick="appendReorderWord('${q.id}', this.getAttribute('data-word'), ${wIdx})" class="reorder-btn-${q.id} bg-blue-50 text-blue-700 hover:bg-blue-200 px-3 py-2 rounded-lg border border-blue-200 font-bold shadow-sm active:scale-95 transition">${w}</button>`).join('');
+                        qContent.innerHTML = `${imageHtml}<div class="mb-3 text-sm text-slate-500 italic">Bấm vào các mảnh ghép:</div><div class="flex flex-wrap gap-2 mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200">${chipsHtml}</div><div class="flex items-center gap-2"><span class="text-sunny-500 font-bold text-xl">➔</span> <input type="text" id="input-ex-${q.id}" class="ex-input w-full text-left px-3 text-blue-700" placeholder="Câu hoàn chỉnh..." readonly> <button type="button" onclick="clearReorder('${q.id}')" class="bg-slate-200 text-slate-600 px-3 py-2 rounded-lg font-bold text-sm hover:bg-red-100 hover:text-red-500 shrink-0">Xóa</button></div>`;
                     }
-                    // ĐIỀN TỪ
                     else if (q.question_type === 'input') {
                         const inputClass = q.use_word_bank ? 'ex-input word-bank-target cursor-pointer' : 'ex-input';
                         const clearEvent = q.use_word_bank ? `onclick="if(this.value){this.value=''; handleInput('${q.id}');}"` : '';
@@ -344,21 +301,12 @@
                         if (q.question_type === 'input') {
                             const inputElem = document.getElementById(`input-ex-${qId}`);
                             if (inputElem) inputElem.value = ans;
-                            if (q.exercise_name && (q.exercise_name.includes('Exercise 14') || q.exercise_name.includes('Reorder'))) {
-                                ans.split(' ').forEach(w => {
-                                    for (let btn of document.querySelectorAll(`.reorder-btn-${qId}:not(.opacity-30)`)) {
-                                        if (btn.innerText === w) { btn.classList.add('opacity-30', 'pointer-events-none'); break; }
-                                    }
-                                });
-                            }
                         } else {
-                            const qItem = document.getElementById(`q-item-${qId}`);
-                            if(qItem) {
-                                const btn = qItem.querySelector(`button[data-optid="${ans}"]`);
-                                if (btn) {
-                                    btn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 bg-sunny-50 border-sunny-400 text-sunny-700 font-bold text-base flex items-center gap-3 shadow-sm';
-                                    btn.querySelector('.indicator-circle').className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-sunny-400 text-white flex items-center justify-center border border-sunny-400 shrink-0 font-bold text-sm';
-                                }
+                            const btn = document.querySelector(`button[data-qid="${qId}"][data-optid="${ans}"]`);
+                            if (btn) {
+                                btn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 bg-sunny-50 border-sunny-400 text-sunny-700 font-bold text-base flex items-center gap-3 shadow-sm';
+                                const indicator = btn.querySelector('.indicator-circle');
+                                if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-sunny-400 text-white flex items-center justify-center border border-sunny-400 shrink-0 font-bold text-sm';
                             }
                         }
                     }
@@ -368,7 +316,28 @@
             }
         }
 
-        window.resetAllProgress = function() { if(confirm("Em có chắc chắn muốn xóa bài để làm lại từ đầu không?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
+        window.resetAllProgress = function() { if(confirm("Em có muốn làm lại từ đầu không?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
+
+        // HÀM XỬ LÝ LỰA CHỌN TRẮC NGHIỆM ĐÃ VÁ LỖI NULL POINTER
+        window.handleChoiceAnswer = function(qId, selectedOptId) {
+            userAnswers[qId] = selectedOptId;
+
+            const allButtonsInQuestion = document.querySelectorAll(`button[data-qid="${qId}"]`);
+            allButtonsInQuestion.forEach(btn => {
+                const optId = btn.getAttribute('data-optid');
+                const indicator = btn.querySelector('.indicator-circle');
+                if (optId === selectedOptId) {
+                    btn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 bg-sunny-50 border-sunny-400 text-sunny-700 font-bold text-base flex items-center gap-3 shadow-sm';
+                    if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-sunny-400 text-white flex items-center justify-center border border-sunny-400 shrink-0 font-bold text-sm';
+                } else {
+                    btn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 border-slate-200 bg-slate-50 font-bold text-base text-slate-500 flex items-center gap-3 hover:bg-slate-100 transition';
+                    if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-white text-slate-400 flex items-center justify-center border border-slate-300 shrink-0 font-bold text-sm';
+                }
+            });
+
+            updateAnswerCount();
+            saveProgress(); 
+        }
 
         window.appendReorderWord = function(qId, word, wIdx) {
             const btn = document.getElementById(`reorder-btn-${qId}-${wIdx}`);
@@ -392,7 +361,6 @@
                 if (input && input.classList.contains('word-bank-target') && input.value.trim() === "" && !input.disabled) {
                     input.value = word;
                     handleInput(q.id);
-                    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     break;
                 }
             }
@@ -409,17 +377,14 @@
             });
 
             let tempUsed = [...usedWords];
-            let originalWords = wordBanksData[exName];
-
-            container.innerHTML = originalWords.map(w => {
+            container.innerHTML = wordBanksData[exName].map(w => {
                 const wordLower = w.toLowerCase();
                 const indexInUsed = tempUsed.indexOf(wordLower);
                 if (indexInUsed !== -1) {
                     tempUsed.splice(indexInUsed, 1);
                     return `<button type="button" class="bg-slate-100 text-slate-400 px-4 py-2 rounded-lg border border-slate-200 font-bold opacity-50 cursor-default">✔️ ${w}</button>`;
                 } else {
-                    let safeW = w.replace(/"/g, '&quot;');
-                    return `<button type="button" data-word="${safeW}" onclick="fillWordBank('${exName}', this.getAttribute('data-word'))" class="bg-magic-50 text-magic-700 hover:bg-magic-200 hover:scale-105 transition px-4 py-2 rounded-lg border border-magic-300 font-bold shadow-sm">${w}</button>`;
+                    return `<button type="button" data-word="${w.replace(/"/g, '&quot;')}" onclick="fillWordBank('${exName}', this.getAttribute('data-word'))" class="bg-magic-50 text-magic-700 hover:bg-magic-200 hover:scale-105 transition px-4 py-2 rounded-lg border border-magic-300 font-bold shadow-sm">${w}</button>`;
                 }
             }).join('');
         }
@@ -428,29 +393,6 @@
             const input = document.getElementById(`input-ex-${qId}`);
             if (input && input.value.trim() !== "") userAnswers[qId] = input.value.trim(); 
             else delete userAnswers[qId];
-            const q = exercisesData.find(e => e.id == qId);
-            if (q && q.use_word_bank) updateWordBankUI(q.exercise_name);
-            updateAnswerCount(); saveProgress(); 
-        }
-
-        // HÀM ĐỔI ĐÁP ÁN TRẮC NGHIỆM ĐÃ FIX 100%
-        window.handleChoiceAnswer = function(qId, selectedOptId) {
-            const qItem = document.getElementById(`q-item-${qId}`);
-            if (!qItem) return;
-
-            const buttons = qItem.querySelectorAll('.option-btn');
-            buttons.forEach(btn => {
-                const isSelected = btn.getAttribute('data-optid') === selectedOptId;
-                if (isSelected) {
-                    btn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 bg-sunny-50 border-sunny-400 text-sunny-700 font-bold text-base flex items-center gap-3 shadow-sm';
-                    btn.querySelector('.indicator-circle').className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-sunny-400 text-white flex items-center justify-center border border-sunny-400 shrink-0 font-bold text-sm';
-                } else {
-                    btn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 border-slate-200 bg-slate-50 font-bold text-base text-slate-500 flex items-center gap-3 hover:bg-slate-100 transition';
-                    btn.querySelector('.indicator-circle').className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-white text-slate-400 flex items-center justify-center border border-slate-300 shrink-0 font-bold text-sm';
-                }
-            });
-
-            userAnswers[qId] = selectedOptId;
             updateAnswerCount(); saveProgress(); 
         }
 
@@ -462,7 +404,6 @@
 
         function normalizeString(str) { return String(str || "").toLowerCase().replace(/[^a-z0-9]/g, ''); }
 
-        // HÀM CHẤM BÀI 
         window.submitLesson = async function() {
             const nameContainer = document.getElementById('name-container');
             const studentNameInput = document.getElementById('student-name');
@@ -502,18 +443,11 @@
                             input.disabled = true; 
                             const userStr = userAnswers[ex.id] || "";
                             isCorrect = normalizeString(userStr) === normalizeString(ex.correct_answer);
-                            if (isCorrect) {
-                                input.classList.add('bg-bamboo-100', 'text-bamboo-700', 'border-bamboo-500');
-                                input.classList.remove('bg-fae8ff', 'color-c026d3');
-                            } else {
-                                input.classList.add('bg-red-100', 'text-red-700', 'border-red-500', 'line-through');
-                                input.classList.remove('bg-fae8ff', 'color-c026d3');
-                            }
+                            if (isCorrect) input.classList.add('bg-bamboo-100', 'text-bamboo-700', 'border-bamboo-500');
+                            else input.classList.add('bg-red-100', 'text-red-700', 'border-red-500', 'line-through');
                         }
-                        const clearBtn = qItem.querySelector('button[onclick^="clearReorder"]');
-                        if (clearBtn) clearBtn.remove();
                     } else {
-                        let options = ex.options; 
+                        let options = ex.options;
                         const userStr = userAnswers[ex.id];
                         const safeCorrectAns = String(ex.correct_answer || "").trim();
                         
@@ -522,16 +456,16 @@
                         correctDisplay = correctOpt ? correctOpt.text : ex.correct_answer;
 
                         options.forEach(opt => {
-                            const optBtn = qItem.querySelector(`button[data-optid="${opt.id}"]`);
+                            const optBtn = document.querySelector(`button[data-qid="${ex.id}"][data-optid="${opt.id}"]`);
                             if (optBtn) {
-                                optBtn.disabled = true;
+                                const indicator = optBtn.querySelector('.indicator-circle');
                                 if (String(opt.id).trim() === safeCorrectAns) {
                                     optBtn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 bg-bamboo-50 border-bamboo-500 text-bamboo-700 font-bold text-base flex items-center gap-3 shadow-sm';
-                                    optBtn.querySelector('.indicator-circle').className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-bamboo-500 text-white flex items-center justify-center border border-bamboo-500 shrink-0 font-bold text-sm';
+                                    if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-bamboo-500 text-white flex items-center justify-center border border-bamboo-500 shrink-0 font-bold text-sm';
                                     if (!optBtn.innerHTML.includes('✅')) optBtn.innerHTML += ' <span class="ml-auto text-2xl">✅</span>';
                                 } else if (opt.id === userStr && !isCorrect) {
                                     optBtn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 bg-red-50 border-red-500 text-red-700 font-bold text-base flex items-center gap-3 shadow-sm opacity-80';
-                                    optBtn.querySelector('.indicator-circle').className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-red-500 text-white flex items-center justify-center border border-red-500 shrink-0 font-bold text-sm';
+                                    if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-red-500 text-white flex items-center justify-center border border-red-500 shrink-0 font-bold text-sm';
                                     if (!optBtn.innerHTML.includes('❌')) optBtn.innerHTML += ' <span class="ml-auto text-2xl">❌</span>';
                                 }
                             }
@@ -549,7 +483,6 @@
                             mistakesList.push(ex.exercise_name);
                             qItem.classList.add('border-2', 'border-red-300', 'bg-red-50');
                             qItem.classList.remove('border-slate-200', 'bg-white');
-                            
                             feedbackDiv.innerHTML = `
                                 <div class="mt-4 bg-sky-50 border-2 border-sky-300 rounded-xl p-4 flex gap-4 items-start shadow-sm relative overflow-hidden">
                                     <div class="text-5xl animate-bounce-gentle z-10">🦉</div>
@@ -561,14 +494,14 @@
                                             <span class="bg-bamboo-100 text-bamboo-700 px-3 py-1 rounded-md border border-bamboo-300 text-lg">${correctDisplay}</span>
                                         </div>
                                         <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                                            <p class="text-slate-800 font-medium"><b class="text-sky-700 text-lg">💡 Giải thích:</b><br/> ${ex.explanation || 'Em hãy đọc kỹ lại phần Lý thuyết ở bên trên để hiểu rõ hơn nhé!'}</p>
+                                            <p class="text-slate-800 font-medium"><b class="text-sky-700 text-lg">💡 Giải thích:</b><br/> ${ex.explanation || 'Em hãy đọc kỹ lại phần Lý thuyết ở bên trên nhé!'}</p>
                                         </div>
                                     </div>
                                 </div>
                             `;
                         }
                     }
-                } catch (err) { console.error("Lỗi hệ thống khi chấm câu:", ex.id, err); }
+                } catch (err) { console.error("Lỗi khi chấm câu:", ex.id, err); }
             });
 
             const totalQs = exercisesData.length;
