@@ -162,9 +162,8 @@
         let exercisesData = [];
         let userAnswers = {}; 
         let wordBanksData = {}; 
-        const STORAGE_KEY = 'unit1_linda_progress_v8'; // Đổi key để xóa bộ nhớ nháp cũ
+        const STORAGE_KEY = 'unit1_linda_progress_pedagogical';
 
-        // TẢI TỪ VỰNG
         async function fetchVocabulary() {
             try {
                 const { data, error } = await supabaseClient.from('vocabulary').select('*').eq('unit', 'Unit 1').order('id', { ascending: true });
@@ -180,45 +179,154 @@
         }
         window.playVocabAudio = function(url) { document.getElementById('vocab-audio').src = url; document.getElementById('vocab-audio').play(); }
 
-        // TẢI BÀI TẬP & TỰ ĐỘNG SỬA LỖI CHÍNH TẢ TỪ DATABASE
+        // =========================================================================
+        // BỘ LỌC SƯ PHẠM AI (PEDAGOGICAL DATA CLEANER) - TỰ ĐỘNG SỬA DỮ LIỆU LỖI
+        // =========================================================================
         async function fetchExercises() {
             try {
                 const { data, error } = await supabaseClient.from('exercises').select('*').eq('unit', 'Unit 1').order('id', { ascending: true });
                 if (error) throw error;
                 if (data.length === 0) throw new Error("Chưa có bài tập nào.");
 
+                // Từ điển tự động làm đẹp đáp án bị dính liền
+                const formatDictionary = {
+                    'seeyouthen': 'See you then!',
+                    'howareyou': 'How are you?',
+                    'imfine': "I'm fine.",
+                    'finethankyou': 'Fine, thank you.',
+                    'howfine': "How are you? I'm fine.",
+                    'goodbyemsmai': 'Goodbye, Ms. Mai.',
+                    'helloimben': "Hello, I'm Ben.",
+                    'nicetomeetyou': 'Nice to meet you.',
+                    'byeclass': 'Bye, class!',
+                    'goodmorning': 'Good morning.',
+                    'goodafternoon': 'Good afternoon.'
+                };
+
                 data.forEach(q => {
-                    // AUTO FIX TYPO: Tự động đổi "see" thành "six" cho câu hỏi 6 con chim
-                    if (q.correct_answer) {
-                        q.correct_answer = String(q.correct_answer).trim();
-                        let questionText = (q.question || "").toLowerCase();
-                        if (q.correct_answer.toLowerCase().includes('see') && (questionText.includes('chim') || questionText.includes('bird') || questionText.includes('6'))) {
-                            q.correct_answer = q.correct_answer.replace(/\bsee\b/gi, 'six');
-                            if (q.question) q.question = q.question.replace(/\bsee\b/gi, 'six');
-                        }
+                    // 1. Sửa lỗi OCR dứt điểm: Nhận diện nhầm chữ Six thành See trong câu hỏi
+                    if (q.question) {
+                        q.question = q.question.replace(/\bSix\b/g, 'See').replace(/\bsix\b/g, 'see');
+                        q.question = q.question.replace(/howfine/gi, 'How are you? I am fine.');
                     }
 
+                    // 2. Format lại correct_answer cho đẹp (thêm dấu cách nếu bị dính liền)
+                    if (q.correct_answer) {
+                        let ans = String(q.correct_answer).trim();
+                        let ansLower = ans.toLowerCase().replace(/[^a-z]/g, '');
+                        
+                        if (formatDictionary[ansLower]) {
+                            ans = formatDictionary[ansLower];
+                        }
+                        q.correct_answer = ans; // Ghi đè đáp án sạch vào bộ nhớ
+                    }
+
+                    // 3. Chuẩn hóa Options Trắc Nghiệm và Fix lỗi ID
                     if (q.question_type === 'multiple_choice' || q.question_type === 'true_false') {
                         let rawOptions = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
                         q.options = rawOptions.map((opt, idx) => {
                             let optionId = (q.question_type === 'true_false') 
                                 ? (idx === 0 ? 'True' : 'False') 
                                 : String.fromCharCode(65 + idx); 
-                            return { id: optionId, text: opt.text || opt };
+                            
+                            // Làm sạch luôn cả chữ dính liền trong option nếu có
+                            let optLower = opt.text.toLowerCase().replace(/[^a-z]/g, '');
+                            let cleanText = formatDictionary[optLower] ? formatDictionary[optLower] : opt.text;
+
+                            return { id: optionId, text: cleanText };
                         });
                         
+                        // Đảm bảo correct_answer trắc nghiệm map đúng A,B,C,D
                         if (q.correct_answer) {
-                            let rawAns = String(q.correct_answer).replace(/<[^>]*>?/gm, '').trim();
+                            let rawAns = q.correct_answer.replace(/<[^>]*>?/gm, '').trim();
                             if (q.question_type === 'multiple_choice') {
                                 let match = rawAns.match(/^([A-E])/i); 
                                 q.correct_answer = match ? match[1].toUpperCase() : rawAns;
                             } else if (q.question_type === 'true_false') {
                                 q.correct_answer = rawAns.toLowerCase().includes('true') ? 'True' : 'False';
-                            } else {
-                                q.correct_answer = rawAns;
                             }
                         }
                     }
+
+                    // 4. Sinh lời Giải Thích Sư Phạm (Template chuẩn Giáo Viên Tiểu Học)
+                    let ansKey = (q.correct_answer || "").toLowerCase().replace(/[^a-z]/g, '');
+                    let explanationHtml = '';
+
+                    if (ansKey === 'seeyouthen') {
+                        explanationHtml = `
+                            <div class="space-y-2 mt-2 text-[15px]">
+                                <p><b>① Vì sao đáp án đúng:</b> Đây là câu chào tạm biệt phổ biến trong tiếng Anh.</p>
+                                <p><b>② Nghĩa từ vựng:</b><br/> - <i>See</i> = gặp<br/> - <i>You</i> = bạn<br/> - <i>Then</i> = lúc đó</p>
+                                <p><b>③ Mẫu câu:</b> Dùng khi tạm biệt và hẹn gặp lại vào một thời điểm đã thống nhất.</p>
+                                <p><b>④ Dịch nghĩa:</b> Hẹn gặp bạn lúc đó nhé!</p>
+                                <p><b>⑤ Ví dụ tương tự:</b><br/> - <i>See you tomorrow!</i> (Hẹn gặp bạn ngày mai!)<br/> - <i>See you at school!</i> (Hẹn gặp bạn ở trường!)</p>
+                            </div>`;
+                    } else if (ansKey === 'howareyou') {
+                        explanationHtml = `
+                            <div class="space-y-2 mt-2 text-[15px]">
+                                <p><b>① Vì sao đáp án đúng:</b> Đây là câu hỏi thăm sức khỏe cơ bản nhất.</p>
+                                <p><b>② Nghĩa từ vựng:</b><br/> - <i>How</i> = như thế nào<br/> - <i>Are</i> = thì, là, ở<br/> - <i>You</i> = bạn</p>
+                                <p><b>③ Mẫu câu:</b> Dùng để hỏi thăm xem ai đó hôm nay cảm thấy thế nào.</p>
+                                <p><b>④ Dịch nghĩa:</b> Bạn có khỏe không?</p>
+                                <p><b>⑤ Ví dụ tương tự:</b><br/> - <i>Hello, how are you?</i> (Xin chào, bạn khỏe không?)</p>
+                            </div>`;
+                    } else if (ansKey === 'imfine' || ansKey === 'finethankyou' || ansKey === 'howfine') {
+                        explanationHtml = `
+                            <div class="space-y-2 mt-2 text-[15px]">
+                                <p><b>① Vì sao đáp án đúng:</b> Câu trả lời tiêu chuẩn khi được hỏi "How are you?".</p>
+                                <p><b>② Nghĩa từ vựng:</b><br/> - <i>Fine</i> = khỏe, tốt<br/> - <i>Thank you / Thanks</i> = cảm ơn bạn</p>
+                                <p><b>③ Mẫu câu:</b> Dùng để đáp lại lời hỏi thăm và thể hiện sự lịch sự bằng cách cảm ơn.</p>
+                                <p><b>④ Dịch nghĩa:</b> Mình khỏe, cảm ơn bạn.</p>
+                                <p><b>⑤ Ví dụ tương tự:</b><br/> - <i>I'm fine, thanks.</i> (Mình khỏe, cảm ơn.)</p>
+                            </div>`;
+                    } else if (ansKey === 'byebyechildren' || ansKey === 'goodbyechildren') {
+                        explanationHtml = `
+                            <div class="space-y-2 mt-2 text-[15px]">
+                                <p><b>① Vì sao đáp án đúng:</b> Câu chào tạm biệt của giáo viên dành cho học sinh.</p>
+                                <p><b>② Nghĩa từ vựng:</b><br/> - <i>Goodbye / Bye bye</i> = tạm biệt<br/> - <i>Children</i> = các em học sinh</p>
+                                <p><b>③ Mẫu câu:</b> Dùng khi kết thúc tiết học hoặc ra về.</p>
+                                <p><b>④ Dịch nghĩa:</b> Tạm biệt các em.</p>
+                                <p><b>⑤ Ví dụ tương tự:</b><br/> - <i>Goodbye, class!</i> (Tạm biệt cả lớp!)</p>
+                            </div>`;
+                    } else if (ansKey === 'goodmorning' || ansKey.includes('morning')) {
+                        explanationHtml = `
+                            <div class="space-y-2 mt-2 text-[15px]">
+                                <p><b>① Vì sao đáp án đúng:</b> Câu chào dùng vào buổi sáng.</p>
+                                <p><b>② Nghĩa từ vựng:</b><br/> - <i>Good</i> = tốt lành<br/> - <i>Morning</i> = buổi sáng</p>
+                                <p><b>③ Mẫu câu:</b> Lời chào lịch sự khi gặp nhau vào buổi sáng.</p>
+                                <p><b>④ Dịch nghĩa:</b> Chào buổi sáng.</p>
+                                <p><b>⑤ Ví dụ tương tự:</b><br/> - <i>Good afternoon!</i> (Chào buổi chiều!)</p>
+                            </div>`;
+                    } else if (ansKey.includes('hello') || ansKey.includes('hi')) {
+                        explanationHtml = `
+                            <div class="space-y-2 mt-2 text-[15px]">
+                                <p><b>① Vì sao đáp án đúng:</b> Mẫu câu chào hỏi và giới thiệu tên cơ bản.</p>
+                                <p><b>② Nghĩa từ vựng:</b> <i>Hello / Hi</i> = Xin chào.</p>
+                                <p><b>③ Mẫu câu:</b> Dùng "Hello, I'm..." để chào và giới thiệu bản thân.</p>
+                                <p><b>④ Dịch nghĩa:</b> Xin chào, mình là...</p>
+                                <p><b>⑤ Ví dụ tương tự:</b><br/> - <i>Hi, I'm Linda.</i> (Chào, mình là Linda.)</p>
+                            </div>`;
+                    } else if (ansKey.includes('nicetomeetyou')) {
+                        explanationHtml = `
+                            <div class="space-y-2 mt-2 text-[15px]">
+                                <p><b>① Vì sao đáp án đúng:</b> Câu nói lịch sự khi lần đầu làm quen với ai đó.</p>
+                                <p><b>② Nghĩa từ vựng:</b><br/> - <i>Nice</i> = vui vẻ, tốt đẹp<br/> - <i>To meet</i> = được gặp</p>
+                                <p><b>③ Mẫu câu:</b> Bày tỏ sự thân thiện khi vừa giới thiệu tên xong.</p>
+                                <p><b>④ Dịch nghĩa:</b> Rất vui được gặp bạn.</p>
+                                <p><b>⑤ Ví dụ tương tự:</b><br/> - <i>Nice to meet you, too.</i> (Mình cũng rất vui được gặp bạn.)</p>
+                            </div>`;
+                    } else {
+                        let originalExp = q.explanation || 'Em hãy đọc kỹ lại phần Lý thuyết ở bên trên để làm bài tốt hơn nhé!';
+                        explanationHtml = `
+                            <div class="space-y-2 mt-2 text-[15px]">
+                                <p><b>① Vì sao đáp án đúng:</b> Dựa vào ngữ cảnh bài học Unit 1: Hello.</p>
+                                <p><b>② Chi tiết bài học:</b> ${originalExp}</p>
+                                <p><b>③ Mẫu câu:</b> Đây là cấu trúc trọng tâm trong Tiếng Anh lớp 3.</p>
+                                <p><b>④ Lời khuyên:</b> Em hãy xem lại phần Grammar (Ngữ pháp) nhé.</p>
+                                <p><b>⑤ Ví dụ tương tự:</b> <i>Hello, how are you?</i></p>
+                            </div>`;
+                    }
+                    q.explanation = explanationHtml;
                 });
 
                 exercisesData = data;
@@ -311,7 +419,7 @@
                     }
                     else if (q.question_type === 'input') {
                         const inputClass = q.use_word_bank ? 'ex-input word-bank-target cursor-pointer' : 'ex-input';
-                        const clearEvent = q.use_word_bank ? `onclick="if(this.value){this.value=''; handleInput('${q.id}');}" title="Bấm để xóa từ"` : '';
+                        const clearEvent = q.use_word_bank ? `onclick="if(this.value){this.value=''; handleInput('${q.id}');}"` : '';
                         if (isEx4) {
                             qText = qText.replace('___', `<input type="text" id="input-ex-${q.id}" class="${inputClass} text-lg w-24 sm:w-28" style="min-width: 110px;" placeholder="..." autocomplete="off" oninput="handleInput('${q.id}')" ${clearEvent}>`);
                             qContent.innerHTML = `${imageHtml}<div class="font-mono text-xl tracking-wider font-bold mt-2 text-center w-full">${qText}</div>`;
@@ -360,11 +468,10 @@
             saveProgress(); 
         }
 
-        // TÀNG HÌNH TỪ VỰNG TRONG BÀI TẬP SẮP XẾP CÂU
         window.appendReorderWord = function(qId, word, wIdx) {
             const btn = document.getElementById(`reorder-btn-${qId}-${wIdx}`);
             if (btn.classList.contains('hidden')) return; 
-            btn.classList.add('hidden'); // Ẩn hoàn toàn từ đã chọn
+            btn.classList.add('hidden');
             const input = document.getElementById(`input-ex-${qId}`);
             input.value = input.value.trim() === "" ? word : input.value + " " + word;
             handleInput(qId);
@@ -376,7 +483,6 @@
             handleInput(qId);
         }
 
-        // CHỌN TỪ TRONG DANH SÁCH TỪ
         window.fillWordBank = function(exName, word) {
             const questions = exercisesData.filter(q => q.exercise_name === exName);
             for (let q of questions) {
@@ -389,14 +495,11 @@
             }
         }
 
-        // THUẬT TOÁN TÀNG HÌNH TỪ VỰNG TRONG WORD BANK (BÀI 2, 9, 10, 13)
         function updateWordBankUI(exName) {
             const container = document.querySelector(`.word-bank-words[data-exname="${exName}"]`);
             if (!container) return;
             const questions = exercisesData.filter(q => q.exercise_name === exName);
             let usedWords = [];
-            
-            // Lấy danh sách các từ học sinh đã điền
             questions.forEach(q => {
                 const input = document.getElementById(`input-ex-${q.id}`);
                 if (input && input.value.trim() !== "") usedWords.push(input.value.trim().toLowerCase());
@@ -405,14 +508,12 @@
             let tempUsed = [...usedWords];
             let originalWords = wordBanksData[exName];
 
-            // Ráp từ để hiển thị hoặc cho biến mất
             container.innerHTML = originalWords.map(w => {
                 const wordLower = w.toLowerCase();
-                const indexInUsed = tempUsed.indexOf(wordLower); // Tìm vị trí từ để xử lý trùng lặp (ví dụ 2 chữ is)
-                
+                const indexInUsed = tempUsed.indexOf(wordLower);
                 if (indexInUsed !== -1) {
-                    tempUsed.splice(indexInUsed, 1); // Cắt 1 chữ ra khỏi danh sách
-                    return ``; // MẤT ĐI HOÀN TOÀN (Tàng hình)
+                    tempUsed.splice(indexInUsed, 1);
+                    return ``; // Tàng hình từ đã chọn
                 } else {
                     let safeW = w.replace(/"/g, '&quot;');
                     return `<button type="button" data-word="${safeW}" onclick="fillWordBank('${exName}', this.getAttribute('data-word'))" class="bg-magic-50 text-magic-700 hover:bg-magic-200 hover:scale-105 transition px-4 py-2 rounded-lg border border-magic-300 font-bold shadow-sm">${w}</button>`;
@@ -454,7 +555,6 @@
                         if (q.question_type === 'input') {
                             const inputElem = document.getElementById(`input-ex-${qId}`);
                             if (inputElem) inputElem.value = ans;
-                            // Ẩn từ trong bài sắp xếp nếu đã chọn
                             if (q.exercise_name && (q.exercise_name.includes('Exercise 14') || q.exercise_name.includes('Reorder'))) {
                                 ans.split(' ').forEach(w => {
                                     for (let btn of document.querySelectorAll(`.reorder-btn-${qId}:not(.hidden)`)) {
@@ -476,10 +576,8 @@
                 }
             }
         }
-        
         window.resetAllProgress = function() { if(confirm("Em có muốn làm lại từ đầu không?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
 
-        // --- KHÔI PHỤC THIẾT QUÂN LUẬT: BẮT BUỘC 100% MỚI CHO NỘP BÀI ---
         window.submitLesson = async function() {
             const nameContainer = document.getElementById('name-container');
             const studentNameInput = document.getElementById('student-name');
@@ -494,7 +592,6 @@
                 return;
             } else nameContainer.classList.remove('ring-4', 'ring-red-300', 'bg-red-50');
 
-            // BẮT BUỘC LÀM HẾT MỚI CHO NỘP BÀI
             const answeredCount = Object.keys(userAnswers).length;
             if (answeredCount < exercisesData.length) {
                 warning.innerHTML = `⚠️ Em mới làm <b>${answeredCount}/${exercisesData.length}</b> câu. Hãy hoàn thành nốt nhé!`;
@@ -580,7 +677,7 @@
                                             <span class="bg-bamboo-100 text-bamboo-700 px-3 py-1 rounded-md border border-bamboo-300 text-lg">${correctDisplay}</span>
                                         </div>
                                         <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                                            <p class="text-slate-800 font-medium"><b class="text-sky-700 text-lg">💡 Giải thích:</b><br/> ${ex.explanation || 'Em hãy đọc kỹ lại phần Lý thuyết ở bên trên nhé!'}</p>
+                                            ${ex.explanation}
                                         </div>
                                     </div>
                                 </div>
