@@ -74,6 +74,9 @@
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        .audio-btn { transition: transform 0.1s; }
+        .audio-btn:active { transform: scale(0.9); }
     </style>
 </head>
 <body class="text-slate-800 min-h-screen py-8 px-4 sm:px-6">
@@ -101,61 +104,13 @@
                 <span class="bg-sky-100 p-2 rounded-xl">I</span> VOCABULARY
             </h2>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
-                    <h3 class="font-bold text-sky-700 text-2xl">hello</h3>
-                    <div class="text-sky-600 font-mono text-sm mb-1">/həˈləʊ/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">excl</span></div>
-                    <p class="text-slate-800 font-bold text-lg mb-2">xin chào</p>
-                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: Hello, Ben.</p>
-                </div>
-                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
-                    <h3 class="font-bold text-sky-700 text-2xl">hi</h3>
-                    <div class="text-sky-600 font-mono text-sm mb-1">/haɪ/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">excl</span></div>
-                    <p class="text-slate-800 font-bold text-lg mb-2">xin chào</p>
-                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: Hi, Lucy.</p>
-                </div>
-                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
-                    <h3 class="font-bold text-sky-700 text-2xl">bye</h3>
-                    <div class="text-sky-600 font-mono text-sm mb-1">/baɪ/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">excl</span></div>
-                    <p class="text-slate-800 font-bold text-base mb-2">tạm biệt (bạn bè/trẻ em)</p>
-                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: Bye, Minh.</p>
-                </div>
-                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
-                    <h3 class="font-bold text-sky-700 text-2xl">goodbye</h3>
-                    <div class="text-sky-600 font-mono text-sm mb-1">/ɡʊdˈbaɪ/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">excl</span></div>
-                    <p class="text-slate-800 font-bold text-base mb-2">tạm biệt (người lớn)</p>
-                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: Goodbye, Mr. Loc.</p>
-                </div>
-                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
-                    <h3 class="font-bold text-sky-700 text-2xl">thank you</h3>
-                    <div class="text-sky-600 font-mono text-sm mb-1">/ˈθæŋk juː/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">excl</span></div>
-                    <p class="text-slate-800 font-bold text-lg mb-2">cảm ơn</p>
-                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: Thank you very much.</p>
-                </div>
-                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
-                    <h3 class="font-bold text-sky-700 text-2xl">I</h3>
-                    <div class="text-sky-600 font-mono text-sm mb-1">/aɪ/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">pro</span></div>
-                    <p class="text-slate-800 font-bold text-lg mb-2">tôi</p>
-                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: I am a pupil.</p>
-                </div>
-                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
-                    <h3 class="font-bold text-sky-700 text-2xl">you</h3>
-                    <div class="text-sky-600 font-mono text-sm mb-1">/juː/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">pro</span></div>
-                    <p class="text-slate-800 font-bold text-lg mb-2">bạn</p>
-                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: You are nice.</p>
-                </div>
-                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
-                    <h3 class="font-bold text-sky-700 text-2xl">name</h3>
-                    <div class="text-sky-600 font-mono text-sm mb-1">/neɪm/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">n</span></div>
-                    <p class="text-slate-800 font-bold text-lg mb-2">tên</p>
-                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: What's your name?</p>
-                </div>
-                <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative">
-                    <h3 class="font-bold text-sky-700 text-2xl">how</h3>
-                    <div class="text-sky-600 font-mono text-sm mb-1">/haʊ/ <span class="bg-sky-200 px-2 rounded text-xs ml-1">adv</span></div>
-                    <p class="text-slate-800 font-bold text-lg mb-2">như thế nào</p>
-                    <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: How are you?</p>
-                </div>
+            <div id="vocab-loading" class="flex flex-col items-center justify-center py-8 gap-4 hidden">
+                <div class="spinner border-t-sky-500"></div>
+                <div class="text-sky-600 font-bold">Đang tải từ vựng...</div>
+            </div>
+
+            <div id="vocabulary-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Nội dung Từ Vựng sẽ được Load từ Supabase vào đây -->
             </div>
             
             <div class="mt-6 bg-slate-50 border-2 border-slate-200 p-4 rounded-xl">
@@ -264,6 +219,9 @@
         </div>
     </div>
 
+    <!-- The Audio Element (Hidden) -->
+    <audio id="vocab-audio" src=""></audio>
+
     <script>
         // KẾT NỐI SUPABASE
         const SUPABASE_URL = 'https://afpttabeioqthytdwduk.supabase.co';
@@ -276,11 +234,68 @@
 
         const STORAGE_KEY = 'unit1_linda_progress';
 
+        // TẢI TỪ VỰNG TỪ SUPABASE
+        async function fetchVocabulary() {
+            const vocabLoading = document.getElementById('vocab-loading');
+            vocabLoading.classList.remove('hidden');
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('vocabulary')
+                    .select('*')
+                    .eq('unit', 'Unit 1')
+                    .order('id', { ascending: true });
+
+                if (error) throw error;
+                
+                const container = document.getElementById('vocabulary-container');
+                container.innerHTML = ''; // Clear nội dung cũ
+                
+                if (data && data.length > 0) {
+                    data.forEach(vocab => {
+                        let audioButton = '';
+                        // Nếu có link âm thanh thì hiển thị nút cái Loa
+                        if (vocab.audio_url) {
+                            audioButton = `
+                                <button onclick="playVocabAudio('${vocab.audio_url}')" class="audio-btn absolute top-2 right-2 bg-sky-200 hover:bg-sky-300 text-sky-700 rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-sm border border-sky-300 z-10" title="Nghe phát âm">
+                                    🔊
+                                </button>
+                            `;
+                        }
+
+                        const cardHtml = `
+                            <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4 relative hover:shadow-md transition">
+                                ${audioButton}
+                                <h3 class="font-bold text-sky-700 text-2xl pr-8">${vocab.word}</h3>
+                                <div class="text-sky-600 font-mono text-sm mb-1">${vocab.pronunciation || ''} <span class="bg-sky-200 px-2 rounded text-xs ml-1">${vocab.part_of_speech || ''}</span></div>
+                                <p class="text-slate-800 font-bold text-lg mb-2">${vocab.meaning || ''}</p>
+                                <p class="text-slate-600 text-sm italic border-t border-sky-200 pt-2">Ex: ${vocab.example || ''}</p>
+                            </div>
+                        `;
+                        container.insertAdjacentHTML('beforeend', cardHtml);
+                    });
+                }
+            } catch (err) {
+                console.error("Lỗi khi tải từ vựng:", err);
+            } finally {
+                vocabLoading.classList.add('hidden');
+            }
+        }
+
+        // Hàm phát âm thanh
+        window.playVocabAudio = function(url) {
+            const player = document.getElementById('vocab-audio');
+            player.src = url;
+            player.play();
+        }
+
+        // TẢI BÀI TẬP TỪ SUPABASE
         async function fetchExercises() {
             try {
                 const { data, error } = await supabaseClient
                     .from('exercises')
                     .select('*')
+                    .eq('unit', 'Unit 1')
                     .order('id', { ascending: true });
 
                 if (error) throw error;
@@ -712,9 +727,7 @@
                     feedbackDiv.className = 'mt-3 rounded-xl p-4 text-base font-bold bg-white border border-bamboo-300 text-bamboo-600 shadow-sm flex items-start gap-2 w-full text-left';
                     feedbackDiv.innerHTML = `<span>✅</span> <div>Chính xác! Xuất sắc!</div>`;
                 } else {
-                    // Ghi nhận bài tập học sinh làm sai
                     mistakesList.push(ex.exercise_name);
-                    
                     qItem.classList.add('bg-red-50', 'border-red-200');
                     qItem.classList.remove('bg-white', 'border-slate-100');
                     feedbackDiv.className = 'mt-4 rounded-xl p-4 text-base border-2 border-red-200 bg-white shadow-sm w-full text-left';
@@ -731,14 +744,12 @@
                 }
             });
 
-            // TẠO LỜI KHUYÊN HỌC TẬP TỰ ĐỘNG DỰA TRÊN LỖI SAI
             let uniqueMistakes = Array.from(new Set(mistakesList));
             let recommendations = "Xuất sắc! Em đã nắm rất vững kiến thức.";
             if (uniqueMistakes.length > 0) {
                 recommendations = "Cần ôn tập lại lý thuyết và cẩn thận hơn ở các phần: " + uniqueMistakes.join(', ') + ".";
             }
 
-            // GỬI KẾT QUẢ VÀ BẢN PHÂN TÍCH LÊN SỔ ĐIỂM SUPABASE
             try {
                 await supabaseClient.from('results').insert([{
                     student_name: studentName,
@@ -802,7 +813,11 @@
             }, 250);
         }
 
-        window.onload = fetchExercises;
+        // CHẠY CẢ 2 HÀM KHI TRANG WEB TẢI XONG
+        window.onload = function() {
+            fetchVocabulary();
+            fetchExercises();
+        };
     </script>
 </body>
 </html>
