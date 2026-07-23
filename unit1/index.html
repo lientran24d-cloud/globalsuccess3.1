@@ -4,13 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lớp Học Cô Linda - Unit 1: HELLO</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Google Fonts: Quicksand -->
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
     <script>
         tailwind.config = {
-            theme: { extend: { fontFamily: { sans: ['Quicksand', 'sans-serif'] }, colors: { bamboo: { 50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 500: '#22c55e', 600: '#16a34a', 700: '#15803d' }, sunny: { 50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' }, sky: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7' }, magic: { 50: '#fdf4ff', 100: '#fae8ff', 200: '#f5d0fe', 500: '#d946ef', 600: '#c026d3' } } } }
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Quicksand', 'sans-serif'] },
+                    colors: {
+                        bamboo: { 50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 500: '#22c55e', 600: '#16a34a', 700: '#15803d' },
+                        sunny: { 50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' },
+                        sky: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7' },
+                        magic: { 50: '#fdf4ff', 100: '#fae8ff', 200: '#f5d0fe', 500: '#d946ef', 600: '#c026d3' }
+                    }
+                }
+            }
         }
     </script>
     <style>
@@ -29,7 +44,7 @@
 </head>
 <body class="text-slate-800 min-h-screen py-8 px-4 sm:px-6">
 
-    <div class="max-w-4xl mx-auto space-y-8">
+    <div class="max-w-4xl mx-auto space-y-8 pt-4">
         
         <!-- HEADER -->
         <header class="text-center mb-8 relative">
@@ -55,9 +70,16 @@
                 <div class="spinner border-t-sky-500"></div><div class="text-sky-600 font-bold">Đang tải từ vựng...</div>
             </div>
             <div id="vocabulary-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+            <div class="mt-6 bg-slate-50 border-2 border-slate-200 p-4 rounded-xl">
+                <h3 class="font-bold text-slate-700 mb-2">III. PHONICS (Ngữ âm)</h3>
+                <ul class="space-y-1 font-bold text-lg">
+                    <li><span class="text-sky-600">b:</span> bye, boy, ball</li>
+                    <li><span class="text-sky-600">h:</span> hello, house, hot</li>
+                </ul>
+            </div>
         </section>
 
-        <!-- PHẦN II: GRAMMAR -->
+        <!-- PHẦN II: GRAMMAR (ĐÃ KHÔI PHỤC ĐẦY ĐỦ) -->
         <section class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-magic-400">
             <h2 class="text-2xl sm:text-3xl font-extrabold text-magic-600 mb-6 border-b-2 border-magic-100 pb-3 flex items-center gap-3">
                 <span class="bg-magic-100 p-2 rounded-xl">II</span> GRAMMAR
@@ -69,6 +91,32 @@
                         <li><span class="inline-block w-20 text-magic-600 font-bold">Cách 1:</span> Hello / Hi. I'm + tên của mình.</li>
                         <li><span class="inline-block w-20 text-magic-600 font-bold">Cách 2:</span> Hello, / Hi, + tên người bạn. I'm + tên của mình.</li>
                     </ul>
+                    <div class="bg-white p-4 rounded-xl border border-magic-100 space-y-1 text-base">
+                        <p><b class="text-slate-800">Ex 1:</b> Hello. I'm Linda. <span class="text-slate-500">(Xin chào. Tớ là Linda.)</span></p>
+                        <p><b class="text-slate-800">Ex 2:</b> Hello, Ben. I'm Minh. <span class="text-slate-500">(Xin chào, Ben. Tớ là Minh.)</span></p>
+                    </div>
+                </div>
+
+                <div class="bg-magic-50 p-5 rounded-2xl border-2 border-magic-200">
+                    <h3 class="font-bold text-magic-700 text-xl mb-3">b. Hỏi thăm sức khỏe</h3>
+                    <ul class="space-y-2">
+                        <li><span class="inline-block w-20 text-magic-600 font-bold">Để hỏi:</span> How are you? <span class="text-slate-500">(Bạn có khỏe không?)</span></li>
+                        <li><span class="inline-block w-20 text-magic-600 font-bold">Trả lời:</span> Fine, thank you. / I'm fine, thank you.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-magic-50 p-5 rounded-2xl border-2 border-magic-200">
+                    <h3 class="font-bold text-magic-700 text-xl mb-3">c. Chào tạm biệt</h3>
+                    <ul class="list-disc pl-6 space-y-1 mb-4">
+                        <li><b class="text-slate-800">Goodbye!</b> – Tạm biệt! <span class="text-slate-500">(Dùng với người lớn tuổi.)</span></li>
+                        <li><b class="text-slate-800">Bye!</b> – Tạm biệt! <span class="text-slate-500">(Dùng với bạn bè.)</span></li>
+                    </ul>
+                    <div class="bg-white p-4 rounded-xl border border-magic-100 text-base">
+                        <ul class="space-y-1">
+                            <li><b class="text-slate-800">See you soon!</b> – Hẹn sớm gặp lại bạn!</li>
+                            <li><b class="text-slate-800">See you later!</b> – Hẹn gặp bạn sau nhé!</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </section>
@@ -128,10 +176,11 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         let exercisesData = [];
-        let userAnswers = {}; 
+        let userAnswers = {}; // Lưu duy nhất theo dạng: { questionId: selectedOptionId }
         let wordBanksData = {}; 
-        const STORAGE_KEY = 'unit1_linda_progress_v5';
+        const STORAGE_KEY = 'unit1_linda_progress_final';
 
+        // TẢI TỪ VỰNG
         async function fetchVocabulary() {
             try {
                 const { data, error } = await supabaseClient.from('vocabulary').select('*').eq('unit', 'Unit 1').order('id', { ascending: true });
@@ -147,6 +196,7 @@
         }
         window.playVocabAudio = function(url) { document.getElementById('vocab-audio').src = url; document.getElementById('vocab-audio').play(); }
 
+        // TẢI BÀI TẬP VÀ XỬ LÝ OPTIONS CHUẨN XÁC
         async function fetchExercises() {
             try {
                 const { data, error } = await supabaseClient.from('exercises').select('*').eq('unit', 'Unit 1').order('id', { ascending: true });
@@ -172,6 +222,7 @@
             } catch (error) { document.getElementById('loading').innerHTML = `<div class="text-red-500 font-bold text-xl text-center">Lỗi: ${error.message}</div>`; }
         }
 
+        // RENDER GIAO DIỆN
         function renderExercisesGrouped(data) {
             const container = document.getElementById('exercises-container');
             document.getElementById('loading').classList.add('hidden');
@@ -229,6 +280,7 @@
                     let imageHtml = q.image_url ? `<div class="w-full flex justify-center mb-3"><img src="${q.image_url}" class="h-32 object-contain rounded-lg"></div>` : '';
                     let qText = q.question.replace(/^\d+\.\s*/, '');
 
+                    // TRẮC NGHIỆM ĐƠN LỰA CHỌN (SINGLE CHOICE)
                     if (q.question_type === 'multiple_choice' || q.question_type === 'true_false') {
                         let options = q.options;
                         const optionsDiv = document.createElement('div');
@@ -241,7 +293,9 @@
                             btn.setAttribute('data-qid', q.id);
                             btn.setAttribute('data-optid', opt.id);
                             
+                            // CHÚ Ý: Bắt buộc class 'indicator-circle' phải luôn có mặt ở span này
                             btn.innerHTML = `<span class="inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-white text-slate-500 flex items-center justify-center border border-slate-300 shrink-0 indicator-circle text-sm">${opt.id}</span> <span>${opt.text}</span>`;
+                            
                             btn.onclick = () => handleChoiceAnswer(q.id, opt.id);
                             optionsDiv.appendChild(btn);
                         });
@@ -284,6 +338,42 @@
             }
         }
 
+        // --- CORE LOGIC: XỬ LÝ LỰA CHỌN TRẮC NGHIỆM ĐẢM BẢO CHỈ 1 ĐÁP ÁN ---
+        window.handleChoiceAnswer = function(qId, selectedOptId) {
+            // 1. Lưu duy nhất một giá trị theo questionId vào object userAnswers
+            userAnswers[qId] = selectedOptId;
+
+            // 2. Tìm tất cả các nút bấm thuộc về câu hỏi này
+            const allButtonsInQuestion = document.querySelectorAll(`button[data-qid="${qId}"]`);
+            
+            allButtonsInQuestion.forEach(btn => {
+                const optId = btn.getAttribute('data-optid');
+                // Lấy an toàn vòng tròn hiển thị màu
+                const indicator = btn.querySelector('.indicator-circle');
+                
+                // 3. Nếu là đáp án đang chọn -> Tô sáng
+                if (optId === selectedOptId) {
+                    btn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 bg-sunny-50 border-sunny-400 text-sunny-700 font-bold text-base flex items-center gap-3 shadow-sm';
+                    if (indicator) {
+                        // Bắt buộc phải giữ lại class 'indicator-circle' để lần click sau không bị báo lỗi NULL
+                        indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-sunny-400 text-white flex items-center justify-center border border-sunny-400 shrink-0 indicator-circle font-bold text-sm';
+                    }
+                } 
+                // 4. Nếu là các đáp án khác -> Xóa sáng (Tự động bỏ chọn)
+                else {
+                    btn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 border-slate-200 bg-slate-50 font-bold text-base text-slate-500 flex items-center gap-3 hover:bg-slate-100 transition';
+                    if (indicator) {
+                        // Bắt buộc phải giữ lại class 'indicator-circle'
+                        indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-white text-slate-400 flex items-center justify-center border border-slate-300 shrink-0 indicator-circle font-bold text-sm';
+                    }
+                }
+            });
+
+            updateAnswerCount();
+            saveProgress(); 
+        }
+
+        // CÁC HÀM XỬ LÝ LƯU TRỮ VÀ TƯƠNG TÁC KHÁC
         function saveProgress() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify({ name: document.getElementById('student-name').value, answers: userAnswers }));
         }
@@ -302,11 +392,14 @@
                             const inputElem = document.getElementById(`input-ex-${qId}`);
                             if (inputElem) inputElem.value = ans;
                         } else {
+                            // Khôi phục nút đã chọn
                             const btn = document.querySelector(`button[data-qid="${qId}"][data-optid="${ans}"]`);
                             if (btn) {
                                 btn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 bg-sunny-50 border-sunny-400 text-sunny-700 font-bold text-base flex items-center gap-3 shadow-sm';
                                 const indicator = btn.querySelector('.indicator-circle');
-                                if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-sunny-400 text-white flex items-center justify-center border border-sunny-400 shrink-0 font-bold text-sm';
+                                if (indicator) {
+                                    indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-sunny-400 text-white flex items-center justify-center border border-sunny-400 shrink-0 indicator-circle font-bold text-sm';
+                                }
                             }
                         }
                     }
@@ -317,27 +410,6 @@
         }
 
         window.resetAllProgress = function() { if(confirm("Em có muốn làm lại từ đầu không?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
-
-        // HÀM XỬ LÝ LỰA CHỌN TRẮC NGHIỆM ĐÃ VÁ LỖI NULL POINTER
-        window.handleChoiceAnswer = function(qId, selectedOptId) {
-            userAnswers[qId] = selectedOptId;
-
-            const allButtonsInQuestion = document.querySelectorAll(`button[data-qid="${qId}"]`);
-            allButtonsInQuestion.forEach(btn => {
-                const optId = btn.getAttribute('data-optid');
-                const indicator = btn.querySelector('.indicator-circle');
-                if (optId === selectedOptId) {
-                    btn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 bg-sunny-50 border-sunny-400 text-sunny-700 font-bold text-base flex items-center gap-3 shadow-sm';
-                    if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-sunny-400 text-white flex items-center justify-center border border-sunny-400 shrink-0 font-bold text-sm';
-                } else {
-                    btn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 border-slate-200 bg-slate-50 font-bold text-base text-slate-500 flex items-center gap-3 hover:bg-slate-100 transition';
-                    if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-white text-slate-400 flex items-center justify-center border border-slate-300 shrink-0 font-bold text-sm';
-                }
-            });
-
-            updateAnswerCount();
-            saveProgress(); 
-        }
 
         window.appendReorderWord = function(qId, word, wIdx) {
             const btn = document.getElementById(`reorder-btn-${qId}-${wIdx}`);
@@ -404,6 +476,7 @@
 
         function normalizeString(str) { return String(str || "").toLowerCase().replace(/[^a-z0-9]/g, ''); }
 
+        // --- HÀM CHẤM BÀI XỬ LÝ KẾT QUẢ ---
         window.submitLesson = async function() {
             const nameContainer = document.getElementById('name-container');
             const studentNameInput = document.getElementById('student-name');
@@ -440,11 +513,15 @@
                     if (ex.question_type === 'input') {
                         const input = document.getElementById(`input-ex-${ex.id}`);
                         if (input) {
-                            input.disabled = true; 
                             const userStr = userAnswers[ex.id] || "";
                             isCorrect = normalizeString(userStr) === normalizeString(ex.correct_answer);
-                            if (isCorrect) input.classList.add('bg-bamboo-100', 'text-bamboo-700', 'border-bamboo-500');
-                            else input.classList.add('bg-red-100', 'text-red-700', 'border-red-500', 'line-through');
+                            if (isCorrect) {
+                                input.classList.add('bg-bamboo-100', 'text-bamboo-700', 'border-bamboo-500');
+                                input.classList.remove('bg-fae8ff', 'color-c026d3');
+                            } else {
+                                input.classList.add('bg-red-100', 'text-red-700', 'border-red-500', 'line-through');
+                                input.classList.remove('bg-fae8ff', 'color-c026d3');
+                            }
                         }
                     } else {
                         let options = ex.options;
@@ -458,14 +535,15 @@
                         options.forEach(opt => {
                             const optBtn = document.querySelector(`button[data-qid="${ex.id}"][data-optid="${opt.id}"]`);
                             if (optBtn) {
+                                // Yêu cầu KHÔNG DISABLE các đáp án sau khi chọn
                                 const indicator = optBtn.querySelector('.indicator-circle');
                                 if (String(opt.id).trim() === safeCorrectAns) {
                                     optBtn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 bg-bamboo-50 border-bamboo-500 text-bamboo-700 font-bold text-base flex items-center gap-3 shadow-sm';
-                                    if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-bamboo-500 text-white flex items-center justify-center border border-bamboo-500 shrink-0 font-bold text-sm';
+                                    if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-bamboo-500 text-white flex items-center justify-center border border-bamboo-500 shrink-0 indicator-circle font-bold text-sm';
                                     if (!optBtn.innerHTML.includes('✅')) optBtn.innerHTML += ' <span class="ml-auto text-2xl">✅</span>';
                                 } else if (opt.id === userStr && !isCorrect) {
                                     optBtn.className = 'option-btn w-full text-left p-3 rounded-xl border-2 bg-red-50 border-red-500 text-red-700 font-bold text-base flex items-center gap-3 shadow-sm opacity-80';
-                                    if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-red-500 text-white flex items-center justify-center border border-red-500 shrink-0 font-bold text-sm';
+                                    if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-red-500 text-white flex items-center justify-center border border-red-500 shrink-0 indicator-circle font-bold text-sm';
                                     if (!optBtn.innerHTML.includes('❌')) optBtn.innerHTML += ' <span class="ml-auto text-2xl">❌</span>';
                                 }
                             }
@@ -509,6 +587,7 @@
             let recommendations = "Xuất sắc! Em đã nắm rất vững kiến thức.";
             if (uniqueMistakes.length > 0) recommendations = "Cần ôn tập lại lý thuyết và cẩn thận hơn ở: " + uniqueMistakes.join(', ') + ".";
 
+            // GỬI KẾT QUẢ LIÊN THÔNG VỀ BẢNG ĐIỂM CỦA GIÁO VIÊN
             supabaseClient.from('results').insert([{
                 student_name: studentName, unit: 'Unit 1: HELLO', exercises_done: 'Đã hoàn thành',
                 correct_count: score, incorrect_count: totalQs - score, recommendations: recommendations
@@ -518,6 +597,7 @@
             document.querySelectorAll('.word-bank-words').forEach(el => el.parentElement.remove());
             localStorage.removeItem(STORAGE_KEY);
 
+            // BUNG BẢNG TỔNG ĐIỂM
             const score10 = ((score / totalQs) * 10).toFixed(1).replace('.0', '');
             document.getElementById('modal-score-10').innerText = score10;
             document.getElementById('modal-correct-score').innerText = score;
