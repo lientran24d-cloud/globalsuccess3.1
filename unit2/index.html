@@ -45,7 +45,7 @@
 <body class="text-slate-800 min-h-screen py-8 px-4 sm:px-6 relative">
 
     <div class="fixed top-0 right-0 bg-blue-100 text-blue-600 font-bold text-xs px-3 py-1 rounded-bl-xl shadow-sm border-b border-l border-blue-200 z-50">
-        Unit 2: OUR NAMES (Bản Dịch Tiếng Việt)
+        Unit 2: OUR NAMES (Bản Cực Phẩm 9.0)
     </div>
 
     <div class="max-w-4xl mx-auto space-y-8 pt-4">
@@ -75,7 +75,6 @@
             </div>
             <div id="vocabulary-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
             
-            <!-- PHONICS UNIT 2 -->
             <div class="mt-6 bg-slate-50 border-2 border-slate-200 p-4 rounded-xl">
                 <h3 class="font-bold text-slate-700 mb-2">III. NGỮ ÂM (PHONICS)</h3>
                 <ul class="space-y-1 font-bold text-lg">
@@ -85,13 +84,12 @@
             </div>
         </section>
 
-        <!-- PHẦN II: GRAMMAR UNIT 2 -->
+        <!-- PHẦN II: GRAMMAR -->
         <section class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-magic-400">
             <h2 class="text-2xl sm:text-3xl font-extrabold text-magic-600 mb-6 border-b-2 border-magic-100 pb-3 flex items-center gap-3">
                 <span class="bg-magic-100 p-2 rounded-xl">II</span> NGỮ PHÁP (GRAMMAR)
             </h2>
             <div class="space-y-6 text-lg font-medium text-slate-700">
-                
                 <div class="bg-magic-50 p-5 rounded-2xl border-2 border-magic-200">
                     <h3 class="font-bold text-magic-700 text-xl mb-3">1. Hỏi và trả lời tên</h3>
                     <ul class="space-y-2 mb-4">
@@ -137,7 +135,6 @@
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </section>
 
@@ -198,9 +195,8 @@
         let exercisesData = [];
         let userAnswers = {}; 
         let wordBanksData = {}; 
-        const STORAGE_KEY = 'unit2_linda_progress_final_v5'; 
+        const STORAGE_KEY = 'unit2_linda_progress_v9'; 
 
-        // TẢI TỪ VỰNG - ĐỌC ĐÚNG DỮ LIỆU UNIT 2
         async function fetchVocabulary() {
             try {
                 const { data, error } = await supabaseClient.from('vocabulary').select('*').eq('unit', 'Unit 2').order('id', { ascending: true });
@@ -216,7 +212,6 @@
         }
         window.playVocabAudio = function(url) { document.getElementById('vocab-audio').src = url; document.getElementById('vocab-audio').play(); }
 
-        // BỘ LỌC AI SƯ PHẠM - SINH LỜI GIẢI THÍCH CHI TIẾT
         function buildDynamicExplanation(qObj) {
             let ans = String(qObj.correct_answer || "").trim();
             let ansLower = ans.toLowerCase().replace(/[^a-z0-9\s]/g, '');
@@ -225,9 +220,7 @@
 
             let fullSentence = qText;
             if (qText.includes('___') || qText.includes('...')) {
-                // Tách ô điền từ nhiều ô
-                let parts = ans.split('|');
-                let i = 0;
+                let parts = ans.split('|'); let i = 0;
                 fullSentence = qText.replace(/(_{2,}|\.{2,})/g, () => {
                     let val = parts[i++] || ans;
                     return `<b class="text-bamboo-700 bg-bamboo-100 px-2 rounded">[ ${val} ]</b>`;
@@ -241,7 +234,6 @@
             let step3 = `Đây là điểm ngữ pháp quan trọng trong Unit 2: Our Names.`;
             let step5 = `<i>Let's read aloud!</i> (Hãy đọc to câu hoàn chỉnh để ghi nhớ nhé!)`;
 
-            // Tự động phân tích ngữ nghĩa
             if (ansLower.includes('name') || qText.toLowerCase().includes('name')) {
                 step2 = `- <b>Name</b> /neɪm/: Tên<br/>- <b>Your</b>: Của bạn<br/>- <b>My</b>: Của mình`;
                 step3 = `Mẫu câu hỏi và trả lời tên: <b>What's your name? ➔ My name's + [tên].</b>`;
@@ -268,7 +260,7 @@
                 step5 = `<i>I am nine years old.</i> (Mình 9 tuổi.)`;
             } else if (ansLower.match(/^(my|your|our|their|his|her|its)$/i)) {
                 step2 = `- Đây là <b>Tính từ sở hữu</b>, đứng trước danh từ để chỉ sự sở hữu.`;
-                step3 = `Ví dụ: my name (tên của tôi), your name (tên của bạn), her name (tên cô ấy).`;
+                step3 = `Ví dụ: my name (tên của tôi), your name (tên của bạn).`;
                 step5 = `<i>Her name is Linh.</i> (Tên cô ấy là Linh.)`;
             } else if (ansLower.match(/^(is|am|are)$/i) || ans.includes('|')) {
                 step2 = `- Động từ "to be": <b>am, is, are</b> (thì, là, ở).`;
@@ -287,14 +279,14 @@
             `;
         }
 
-        // TẢI BÀI TẬP - ĐỌC ĐÚNG DỮ LIỆU UNIT 2
         async function fetchExercises() {
             try {
                 const { data, error } = await supabaseClient.from('exercises').select('*').eq('unit', 'Unit 2').order('id', { ascending: true });
                 if (error) throw error;
                 if (data.length === 0) throw new Error("Chưa có bài tập nào.");
 
-                // Từ điển làm đẹp chữ bị dính liền và định dạng in hoa chuẩn xác
+                let filteredData = data.filter(q => !(q.exercise_name && q.exercise_name.includes('Exercise 6') && q.correct_answer && q.correct_answer.toLowerCase() === 'seven'));
+
                 const formatDictionary = {
                     'seeyouthen': 'See you then!',
                     'howareyou': 'How are you?',
@@ -328,28 +320,36 @@
                     'howareyoulanandhoa': "How are you, Lan and Hoa?"
                 };
 
-                data.forEach(q => {
-                    // AUTO FIX TYPO (OCR/AI Lỗi Nhận Diện)
+                filteredData.forEach(q => {
                     if (q.question) {
                         q.question = q.question.replace(/\bhte\b/gi, 'the').replace(/\bform\b/gi, 'from');
+                        q.question = q.question.replace(/\(Ảnh.*?\)<br>/gi, '').replace(/\(Ảnh.*?\)/gi, '');
+                        q.question = q.question.replace(/\(Bánh nến.*?số.*?\)<br>/gi, '').replace(/\(Bánh nến.*?số.*?\)/gi, '');
                     }
+
+                    if (q.exercise_name && q.exercise_name.includes('Exercise 12')) { q.image_url = null; }
+
+                    if (q.exercise_name && q.exercise_name.includes('Exercise 1:')) {
+                        q.question = q.question.replace(/_ine/g, '___ine')
+                                               .replace(/_ary/g, '___ary')
+                                               .replace(/_ame/g, '___ame')
+                                               .replace(/_eet/g, '___eet');
+                    }
+
+                    if (q.exercise_name && q.exercise_name.includes('Exercise 10:')) {
+                        q.correct_answer = 'B - A - E - D - C';
+                        q.display_correct_answer = 'B - A - E - D - C';
+                    }
+
                     if (q.correct_answer) {
                         let rawAns = String(q.correct_answer).trim();
                         rawAns = rawAns.replace(/\bhte\b/gi, 'the').replace(/\bform\b/gi, 'from');
-                        
-                        // Sửa lỗi nhầm "six" với "see" và ngược lại tùy ngữ cảnh câu hỏi
-                        if (rawAns.toLowerCase() === 'six' && q.question.toLowerCase().includes('see you')) {
-                            rawAns = 'See';
-                        }
-                        if (rawAns.toLowerCase() === 'see' && (q.question.toLowerCase().includes('cake') || q.question.toLowerCase().includes('number') || q.question.toLowerCase().includes('tuổi'))) {
-                            rawAns = 'six';
-                        }
-                        
+                        if (rawAns.toLowerCase() === 'six' && q.question.toLowerCase().includes('see you')) rawAns = 'See';
+                        if (rawAns.toLowerCase() === 'see' && (q.question.toLowerCase().includes('cake') || q.question.toLowerCase().includes('number') || q.question.toLowerCase().includes('tuổi'))) rawAns = 'six';
                         q.correct_answer = rawAns;
                     }
 
-                    // ĐỊNH DẠNG ĐÁP ÁN ĐẸP KHÔNG DÍNH LIỀN
-                    if (q.question_type === 'input' && q.correct_answer) {
+                    if (q.question_type === 'input' && q.correct_answer && !q.exercise_name.includes('Exercise 10:')) {
                         if (!q.correct_answer.includes('|')) {
                             let ansLower = String(q.correct_answer).toLowerCase().replace(/[^a-z]/g, '');
                             q.display_correct_answer = formatDictionary[ansLower] || q.correct_answer;
@@ -358,7 +358,6 @@
                         }
                     }
 
-                    // CHUẨN HÓA TRẮC NGHIỆM
                     if (q.question_type === 'multiple_choice' || q.question_type === 'true_false') {
                         let rawOptions = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
                         q.options = rawOptions.map((opt, idx) => {
@@ -378,10 +377,8 @@
                                 (rawAns.toLowerCase() === 'v' && o.text.toLowerCase().includes('đúng')) ||
                                 (rawAns.toLowerCase() === 'x' && o.text.toLowerCase().includes('sai'))
                             );
-                            
-                            if (matchedOpt) {
-                                q.correct_answer = matchedOpt.id; 
-                            } else {
+                            if (matchedOpt) q.correct_answer = matchedOpt.id; 
+                            else {
                                 if (q.question_type === 'multiple_choice') {
                                     let match = rawAns.match(/^([A-E])/i); 
                                     q.correct_answer = match ? match[1].toUpperCase() : rawAns;
@@ -392,12 +389,11 @@
                         }
                     }
 
-                    // TỰ ĐỘNG SINH GIẢI THÍCH
                     q.explanation = buildDynamicExplanation(q);
                 });
 
-                exercisesData = data;
-                renderExercisesGrouped(data);
+                exercisesData = filteredData;
+                renderExercisesGrouped(filteredData);
                 loadProgress();
             } catch (error) { document.getElementById('loading').innerHTML = `<div class="text-red-500 font-bold text-xl text-center">Lỗi: ${error.message}</div>`; }
         }
@@ -421,15 +417,13 @@
                 const exBlock = document.createElement('div');
                 exBlock.className = 'bg-slate-50 border-2 border-slate-200 p-5 rounded-2xl shadow-sm relative';
                 
-                // =========================================================================
-                // BỘ DỊCH TỰ ĐỘNG TIÊU ĐỀ BÀI TẬP SANG TIẾNG VIỆT
-                // Đảm bảo học sinh lớp 3 hiểu phải làm gì mà không cần đổi CSDL
-                // =========================================================================
                 let translatedExName = exName.replace(/Exercise\s+(\d+):/gi, "Bài $1:");
                 const dict = {
                     "Look at the photo and complete the word with missing letter n or m.": "Nhìn ảnh và điền chữ n hoặc m còn thiếu.",
+                    "Complete the sentences with the words you've found in exercise 1. (You may make some changes.)": "Hoàn thành các câu sau bằng các từ ở bài tập 1.",
+                    "Complete the sentences with the words you've found in exercise 1.": "Hoàn thành các câu sau bằng các từ ở bài tập 1.",
                     "Complete the sentences with the words in the box.": "Điền từ trong danh sách để hoàn thành câu.",
-                    "Complete the sentences.": "Hoàn thành các câu sau.",
+                    "Complete the sentences.": "Hoàn thành các câu sau bằng các từ ở bài tập 1.",
                     "Choose the odd one out.": "Chọn từ khác loại.",
                     "Give the possessive adjectives.": "Điền tính từ sở hữu tương ứng.",
                     "Reorder the letters to have the correct words.": "Sắp xếp chữ cái thành từ đúng.",
@@ -444,13 +438,50 @@
                     "Make questions and answers.": "Viết câu hỏi và câu trả lời theo mẫu.",
                     "Reorder the words to have correct sentences.": "Sắp xếp các từ thành câu hoàn chỉnh."
                 };
-                for (let eng in dict) {
-                    translatedExName = translatedExName.replace(new RegExp(eng.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), "gi"), dict[eng]);
-                }
+                for (let eng in dict) { translatedExName = translatedExName.replace(new RegExp(eng.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), "gi"), dict[eng]); }
 
                 exBlock.innerHTML = `<h3 class="text-xl font-extrabold text-sunny-600 mb-5 border-b-2 border-slate-200 pb-3 flex items-center gap-2"><span>📋</span> ${translatedExName}</h3>`;
 
-                // Render Word Bank (Tàng hình từ vựng)
+                if (exName.includes('Exercise 6')) {
+                    exBlock.insertAdjacentHTML('beforeend', `
+                        <div class="bg-sunny-50 border-2 border-sunny-200 p-4 rounded-xl mb-6 shadow-sm">
+                            <div class="font-extrabold text-sunny-700 mb-2 flex items-center gap-2"><span>💡</span> VÍ DỤ MINH HỌA (EXAMPLE):</div>
+                            <div class="flex items-center gap-4 bg-white p-3 rounded-lg border border-sunny-100">
+                                <img src="https://afpttabeioqthytdwduk.supabase.co/storage/v1/object/public/imageunit1/2.6.3.png" class="h-16 sm:h-20 object-contain rounded-lg shadow-sm border border-slate-100">
+                                <div class="text-xl font-bold text-slate-700">➔ <span class="text-bamboo-600">seven</span></div>
+                            </div>
+                        </div>
+                    `);
+                }
+                if (exName.includes('Exercise 13')) {
+                    exBlock.insertAdjacentHTML('beforeend', `
+                        <div class="bg-sunny-50 border-2 border-sunny-200 p-4 rounded-xl mb-6 shadow-sm">
+                            <div class="font-extrabold text-sunny-700 mb-2 flex items-center gap-2"><span>💡</span> VÍ DỤ MINH HỌA (EXAMPLE):</div>
+                            <div class="flex items-center gap-4 bg-white p-3 rounded-lg border border-sunny-100">
+                                <img src="https://afpttabeioqthytdwduk.supabase.co/storage/v1/object/public/imageunit1/U2.13.Lucy.png" class="h-16 sm:h-20 object-contain rounded-lg shadow-sm border border-slate-100">
+                                <div class="text-base sm:text-lg font-bold text-slate-700 leading-relaxed">
+                                    <span class="text-sky-600">What's your name?</span><br>
+                                    <span class="text-bamboo-600">My name's Lucy.</span>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                }
+                if (exName.includes('Exercise 14')) {
+                    exBlock.insertAdjacentHTML('beforeend', `
+                        <div class="bg-sunny-50 border-2 border-sunny-200 p-4 rounded-xl mb-6 shadow-sm">
+                            <div class="font-extrabold text-sunny-700 mb-2 flex items-center gap-2"><span>💡</span> VÍ DỤ MINH HỌA (EXAMPLE):</div>
+                            <div class="flex items-center gap-4 bg-white p-3 rounded-lg border border-sunny-100">
+                                <img src="https://afpttabeioqthytdwduk.supabase.co/storage/v1/object/public/imageunit1/2.6.2.png" class="h-16 sm:h-20 object-contain rounded-lg shadow-sm border border-slate-100">
+                                <div class="text-base sm:text-lg font-bold text-slate-700 leading-relaxed">
+                                    <span class="text-sky-600">How old are you?</span><br>
+                                    <span class="text-bamboo-600">I'm six years old.</span>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                }
+
                 if (questions.some(q => q.use_word_bank)) {
                     let words = [];
                     questions.forEach(q => { if(q.use_word_bank && q.correct_answer) words = words.concat(q.correct_answer.split('|').join(',').split(',').map(w => w.trim())); });
@@ -468,36 +499,32 @@
                     exBlock.insertAdjacentHTML('beforeend', wbHtml);
                 }
 
-                let isEx4 = exName.includes('Exercise 4') || exName.includes('Exercise 1'); // Chia cột cho bài ngắn
+                let isGrid = exName.includes('Exercise 4:') || exName.includes('Exercise 1:'); 
                 const itemsContainer = document.createElement('div');
-                itemsContainer.className = isEx4 ? 'grid grid-cols-2 md:grid-cols-3 gap-6' : 'space-y-6';
+                itemsContainer.className = isGrid ? 'grid grid-cols-2 md:grid-cols-3 gap-6' : 'space-y-6';
                 
                 questions.forEach((q, index) => {
                     const qItem = document.createElement('div');
-                    qItem.className = isEx4 ? 'bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center text-center transition-all duration-300' : 'bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm transition-all duration-300';
+                    qItem.className = isGrid ? 'bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center text-center transition-all duration-300' : 'bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm transition-all duration-300';
                     qItem.id = `q-item-${q.id}`;
 
                     const qFlex = document.createElement('div');
-                    qFlex.className = isEx4 ? 'flex flex-col items-center w-full' : 'flex gap-3 items-start w-full';
+                    qFlex.className = isGrid ? 'flex flex-col items-center w-full' : 'flex gap-3 items-start w-full';
 
                     const qNum = document.createElement('div');
-                    qNum.className = isEx4 ? 'font-bold text-slate-500 mb-2' : 'font-bold text-white bg-slate-300 w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5';
-                    qNum.innerText = isEx4 ? `${index + 1}.` : index + 1;
+                    qNum.className = isGrid ? 'font-bold text-slate-500 mb-2' : 'font-bold text-white bg-slate-300 w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5';
+                    qNum.innerText = isGrid ? `${index + 1}.` : index + 1;
                     
                     const qContent = document.createElement('div');
-                    qContent.className = 'w-full text-lg font-medium text-slate-800 leading-relaxed';
+                    qContent.className = 'w-full text-lg font-medium text-slate-800 leading-relaxed relative'; // Cần relative cho Cỗ Máy Phản Chiếu
                     let imageHtml = q.image_url ? `<div class="w-full flex justify-center mb-3"><img src="${q.image_url}" class="h-32 object-contain rounded-lg"></div>` : '';
                     let qText = q.question.replace(/^\d+\.\s*/, '');
-                    
-                    // Dịch một số câu lệnh dính liền trong nội dung câu hỏi
                     qText = qText.replace(/Choose the odd one out:/gi, 'Chọn từ khác loại:');
 
-                    // TRẮC NGHIỆM ĐƠN LỰA CHỌN
                     if (q.question_type === 'multiple_choice' || q.question_type === 'true_false') {
                         let options = q.options;
                         const optionsDiv = document.createElement('div');
                         optionsDiv.className = options.length === 4 ? 'grid grid-cols-1 sm:grid-cols-2 gap-3 w-full' : 'space-y-3 w-full';
-                        
                         options.forEach(opt => {
                             const btn = document.createElement('button');
                             btn.type = 'button';
@@ -511,33 +538,81 @@
                         qContent.innerHTML = `${imageHtml}<div class="mb-4">${qText}</div>`;
                         qContent.appendChild(optionsDiv);
                     } 
-                    // SẮP XẾP CÂU / TỪ (MẢNH GHÉP)
-                    else if (exName.includes('Exercise 15') || exName.includes('Exercise 5') || exName.includes('Reorder')) {
-                        const words = qText.split('➔')[0].replace(/<br>/g, '').trim().split('/').map(w => w.replace(/^\d+\.\s*/g, '').replace(/[.,?!]/g, '').trim()).filter(w => w !== '');
-                        const chipsHtml = words.map((w, wIdx) => `<button type="button" id="reorder-btn-${q.id}-${wIdx}" data-word="${w.replace(/"/g, '&quot;')}" onclick="appendReorderWord('${q.id}', this.getAttribute('data-word'), ${wIdx})" class="reorder-btn-${q.id} bg-blue-50 text-blue-700 hover:bg-blue-200 px-3 py-2 rounded-lg border border-blue-200 font-bold shadow-sm active:scale-95 transition">${w}</button>`).join('');
-                        qContent.innerHTML = `${imageHtml}<div class="mb-3 text-sm text-slate-500 italic">Bấm vào các mảnh ghép:</div><div class="flex flex-wrap gap-2 mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200">${chipsHtml}</div><div class="flex items-center gap-2"><span class="text-sunny-500 font-bold text-xl">➔</span> <input type="text" id="input-ex-${q.id}-0" data-qid="${q.id}" class="ex-input w-full text-left px-3 text-blue-700 multi-input" placeholder="Câu hoàn chỉnh..." readonly> <button type="button" onclick="clearReorder('${q.id}')" class="bg-slate-200 text-slate-600 px-3 py-2 rounded-lg font-bold text-sm hover:bg-red-100 hover:text-red-500 shrink-0">Xóa</button></div>`;
+                    else if (exName.includes('Exercise 15') || exName.includes('Exercise 5') || exName.includes('Exercise 10') || exName.includes('Reorder')) {
+                        let isLetterReorder = exName.includes('Exercise 5');
+                        let isSentenceReorder = exName.includes('Exercise 10');
+                        let reorderType = isLetterReorder ? 'letter' : (isSentenceReorder ? 'sentence' : 'word');
+                        
+                        let words = [];
+                        let extraHtml = '';
+                        
+                        if (isSentenceReorder) {
+                            words = ['A', 'B', 'C', 'D', 'E'];
+                            extraHtml = `
+                                <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl mb-4 text-slate-700 font-medium space-y-3 text-left shadow-sm text-base sm:text-lg">
+                                    <div class="flex gap-3 items-start"><b class="text-blue-600 bg-blue-100 px-3 py-1 rounded-lg shrink-0">A</b> <span class="mt-1">Mary: Hello, Linh. I'm Mary.</span></div>
+                                    <div class="flex gap-3 items-start"><b class="text-blue-600 bg-blue-100 px-3 py-1 rounded-lg shrink-0">B</b> <span class="mt-1">Linh: Hello, I'm Linh.</span></div>
+                                    <div class="flex gap-3 items-start"><b class="text-blue-600 bg-blue-100 px-3 py-1 rounded-lg shrink-0">C</b> <span class="mt-1">Mary: I'm eight years old, too.</span></div>
+                                    <div class="flex gap-3 items-start"><b class="text-blue-600 bg-blue-100 px-3 py-1 rounded-lg shrink-0">D</b> <span class="mt-1">Linh: I'm eight years old. How about you?</span></div>
+                                    <div class="flex gap-3 items-start"><b class="text-blue-600 bg-blue-100 px-3 py-1 rounded-lg shrink-0">E</b> <span class="mt-1">Mary: How old are you?</span></div>
+                                </div>
+                            `;
+                            qText = ''; 
+                        } else if (isLetterReorder) {
+                            words = qText.split('➔')[0].trim().split(''); 
+                        } else {
+                            words = qText.split('➔')[0].replace(/<br>/g, '').trim().split('/').map(w => w.replace(/^\d+\.\s*/g, '').replace(/[.,?!]/g, '').trim()).filter(w => w !== '');
+                        }
+                        
+                        const chipsHtml = words.map((w, wIdx) => `<button type="button" id="reorder-btn-${q.id}-${wIdx}" data-word="${w.replace(/"/g, '&quot;')}" onclick="appendReorderWord('${q.id}', this.getAttribute('data-word'), ${wIdx}, '${reorderType}')" class="reorder-btn-${q.id} bg-blue-50 text-blue-700 hover:bg-blue-200 px-4 py-2 rounded-xl border-2 border-blue-200 font-bold shadow-sm active:scale-95 transition text-lg">${w}</button>`).join('');
+                        
+                        qContent.innerHTML = `${imageHtml}${extraHtml}<div class="mb-3 text-sm text-slate-500 italic">Bấm vào các mảnh ghép:</div><div class="flex flex-wrap gap-2 mb-4 p-4 bg-slate-50 rounded-2xl border border-slate-200">${chipsHtml}</div><div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full"><span class="text-sunny-500 font-bold text-2xl hidden sm:inline-block">➔</span> <input type="text" id="input-ex-${q.id}-0" data-qid="${q.id}" class="ex-input w-full text-left px-4 py-2 text-blue-700 multi-input text-lg" placeholder="Câu hoàn chỉnh..." readonly> <button type="button" onclick="clearReorder('${q.id}', '${reorderType}')" class="bg-slate-200 text-slate-600 px-4 py-2 rounded-xl font-bold hover:bg-red-100 hover:text-red-600 shrink-0 transition">Xóa lại</button></div>`;
                     }
-                    // ĐIỀN CHỮ NHIỀU Ô
+                    // CỖ MÁY PHẢN CHIẾU (BÀI 13 & 14) VÀ ĐIỀN NHIỀU Ô
                     else if (q.question_type === 'input') {
                         const inputClass = q.use_word_bank ? 'ex-input word-bank-target cursor-pointer' : 'ex-input';
                         const clearEvent = q.use_word_bank ? `onclick="if(this.value){this.value=''; handleMultiInput('${q.id}');}" title="Bấm để xóa từ"` : '';
                         let blankCount = 0;
 
-                        if (isEx4) {
-                            qText = qText.replace(/___/g, () => { 
-                                let idx = blankCount++;
-                                return `<input type="text" id="input-ex-${q.id}-${idx}" data-qid="${q.id}" class="${inputClass} text-lg w-24 sm:w-28 multi-input" style="min-width: 110px;" placeholder="..." autocomplete="off" oninput="handleMultiInput('${q.id}')" ${clearEvent}>`; 
-                            });
-                            qContent.innerHTML = `${imageHtml}<div class="font-mono text-xl tracking-wider font-bold mt-2 text-center w-full">${qText}</div>`;
-                        } else {
+                        if (isGrid) {
                             qText = qText.replace(/(_{3,}|\.{3,}|___)/g, () => { 
                                 let idx = blankCount++;
-                                return `<input type="text" id="input-ex-${q.id}-${idx}" data-qid="${q.id}" class="${inputClass} min-w-[100px] multi-input" placeholder="..." autocomplete="off" oninput="handleMultiInput('${q.id}')" ${clearEvent}>`; 
+                                return `<input type="text" id="input-ex-${q.id}-${idx}" data-qid="${q.id}" class="${inputClass} text-lg w-20 sm:w-24 multi-input text-center" style="min-width: 80px;" placeholder="..." autocomplete="off" oninput="handleMultiInput('${q.id}')" ${clearEvent}>`; 
                             });
-                            if (blankCount === 0) { 
-                                qText += ` <span class="text-sunny-500 font-bold">➔</span> <input type="text" id="input-ex-${q.id}-0" data-qid="${q.id}" class="${inputClass} min-w-[150px] w-auto multi-input" placeholder="Viết đáp án..." autocomplete="off" oninput="handleMultiInput('${q.id}')" ${clearEvent}>`; 
+                            
+                            if (blankCount === 0) {
+                                qText += ` <span class="text-sunny-500 font-bold hidden sm:inline-block">➔</span> <input type="text" id="input-ex-${q.id}-0" data-qid="${q.id}" class="${inputClass} text-lg w-20 sm:w-28 multi-input text-center mt-2" placeholder="..." autocomplete="off" oninput="handleMultiInput('${q.id}')" ${clearEvent}>`;
                             }
-                            qContent.innerHTML = `${imageHtml}<div class="text-xl tracking-wide">${qText}</div>`;
+                            qContent.innerHTML = `${imageHtml}<div class="font-mono text-lg sm:text-xl tracking-wider font-bold mt-2 text-center w-full">${qText}</div>`;
+                        } else {
+                            // CỖ MÁY PHẢN CHIẾU THỜI GIAN THỰC (REAL-TIME MIRROR)
+                            let isMirrorEx = exName.includes('Exercise 13') || exName.includes('Exercise 14');
+                            
+                            if (isMirrorEx) {
+                                // Cắt hai câu riêng biệt ra để soi gương
+                                let mirrorHtml = `
+                                    <div class="bg-blue-50/50 border border-blue-100 rounded-xl p-4 mb-4 text-center font-bold text-sky-800 text-lg shadow-inner min-h-[5rem] flex flex-col justify-center">
+                                        <div id="mirror-${q.id}-0" class="empty:after:content-['...'] empty:after:text-slate-300 min-h-[1.5rem] tracking-wide"></div>
+                                        <div id="mirror-${q.id}-1" class="empty:after:content-['...'] empty:after:text-slate-300 min-h-[1.5rem] tracking-wide text-bamboo-700 mt-1"></div>
+                                    </div>
+                                `;
+
+                                qText = qText.replace(/(_{3,}|\.{3,}|___)/g, () => { 
+                                    let idx = blankCount++;
+                                    return `<input type="text" id="input-ex-${q.id}-${idx}" data-qid="${q.id}" class="${inputClass} w-full multi-input text-center font-bold mt-2 mb-2 bg-fae8ff" placeholder="Gõ câu ${idx + 1} vào đây..." autocomplete="off" oninput="handleMultiInput('${q.id}')" ${clearEvent}>`; 
+                                });
+
+                                qContent.innerHTML = `${imageHtml}${mirrorHtml}<div class="flex flex-col gap-2 w-full max-w-sm mx-auto">${qText}</div>`;
+                            } else {
+                                qText = qText.replace(/(_{3,}|\.{3,}|___)/g, () => { 
+                                    let idx = blankCount++;
+                                    return `<input type="text" id="input-ex-${q.id}-${idx}" data-qid="${q.id}" class="${inputClass} w-16 sm:w-24 mx-1 multi-input text-center font-bold" placeholder="..." autocomplete="off" oninput="handleMultiInput('${q.id}')" ${clearEvent}>`; 
+                                });
+                                if (blankCount === 0) { 
+                                    qText += ` <span class="text-sunny-500 font-bold hidden sm:inline-block">➔</span> <input type="text" id="input-ex-${q.id}-0" data-qid="${q.id}" class="${inputClass} w-full sm:w-2/3 multi-input mt-2" placeholder="Viết đáp án..." autocomplete="off" oninput="handleMultiInput('${q.id}')" ${clearEvent}>`; 
+                                }
+                                qContent.innerHTML = `${imageHtml}<div class="text-xl tracking-wide leading-[2.5rem] break-words">${qText}</div>`;
+                            }
                         }
                     }
 
@@ -545,7 +620,7 @@
                     feedbackDiv.id = `feedback-${q.id}`;
                     feedbackDiv.className = 'mt-4 hidden w-full text-left';
 
-                    if (!isEx4) qFlex.appendChild(qNum);
+                    if (!isGrid) qFlex.appendChild(qNum);
                     else qContent.insertBefore(qNum, qContent.firstChild);
                     
                     qFlex.appendChild(qContent);
@@ -558,10 +633,8 @@
             }
         }
 
-        // BẢO VỆ LỖI NULL: Chỉ gọi className khi indicator tồn tại
         window.handleChoiceAnswer = function(qId, selectedOptId) {
             userAnswers[qId] = selectedOptId;
-
             const allButtonsInQuestion = document.querySelectorAll(`button[data-qid="${qId}"]`);
             allButtonsInQuestion.forEach(btn => {
                 const optId = btn.getAttribute('data-optid');
@@ -574,21 +647,21 @@
                     if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-white text-slate-400 flex items-center justify-center border border-slate-300 shrink-0 indicator-circle font-bold text-sm';
                 }
             });
-
-            updateAnswerCount();
-            saveProgress(); 
+            updateAnswerCount(); saveProgress(); 
         }
 
-        window.appendReorderWord = function(qId, word, wIdx) {
+        window.appendReorderWord = function(qId, word, wIdx, type) {
             const btn = document.getElementById(`reorder-btn-${qId}-${wIdx}`);
             if (btn.classList.contains('hidden')) return; 
             btn.classList.add('hidden');
             const input = document.getElementById(`input-ex-${qId}-0`);
-            input.value = input.value.trim() === "" ? word : input.value + " " + word;
+            
+            let separator = type === 'letter' ? '' : (type === 'sentence' ? ' - ' : ' ');
+            input.value = input.value.trim() === "" ? word : input.value + separator + word;
             handleMultiInput(qId);
         }
 
-        window.clearReorder = function(qId) {
+        window.clearReorder = function(qId, type) {
             document.getElementById(`input-ex-${qId}-0`).value = "";
             document.querySelectorAll(`.reorder-btn-${qId}`).forEach(b => b.classList.remove('hidden'));
             handleMultiInput(qId);
@@ -638,22 +711,22 @@
 
         window.handleMultiInput = function(qId) {
             const inputs = document.querySelectorAll(`input[data-qid="${qId}"]`);
-            let vals = [];
-            let hasValue = false;
-            inputs.forEach(inp => {
+            let vals = []; let hasValue = false;
+            
+            inputs.forEach((inp, idx) => {
                 vals.push(inp.value.trim());
                 if(inp.value.trim() !== "") hasValue = true;
+                
+                // NẠP DỮ LIỆU LÊN CỖ MÁY PHẢN CHIẾU NẾU TỒN TẠI
+                let mirror = document.getElementById(`mirror-${qId}-${idx}`);
+                if (mirror) mirror.innerText = inp.value;
             });
             
-            if (hasValue) {
-                userAnswers[qId] = vals.join('|');
-            } else {
-                delete userAnswers[qId];
-            }
+            if (hasValue) userAnswers[qId] = vals.join('|');
+            else delete userAnswers[qId];
             
             const q = exercisesData.find(e => e.id == qId);
             if (q && q.use_word_bank) updateWordBankUI(q.exercise_name);
-            
             updateAnswerCount(); saveProgress(); 
         }
 
@@ -680,12 +753,21 @@
                         if (q.question_type === 'input') {
                             let vals = ans.split('|');
                             const inputs = document.querySelectorAll(`input[data-qid="${qId}"]`);
-                            inputs.forEach((inp, idx) => { if (vals[idx]) inp.value = vals[idx]; });
+                            inputs.forEach((inp, idx) => { 
+                                if (vals[idx]) {
+                                    inp.value = vals[idx]; 
+                                    let mirror = document.getElementById(`mirror-${qId}-${idx}`);
+                                    if (mirror) mirror.innerText = vals[idx];
+                                }
+                            });
                             
-                            if (q.exercise_name && (q.exercise_name.includes('Exercise 15') || q.exercise_name.includes('Exercise 5') || q.exercise_name.includes('Reorder'))) {
-                                ans.replace(/\|/g, ' ').split(' ').forEach(w => {
+                            if (q.exercise_name && (q.exercise_name.includes('Exercise 15') || q.exercise_name.includes('Exercise 5') || q.exercise_name.includes('Exercise 10') || q.exercise_name.includes('Reorder'))) {
+                                let type = q.exercise_name.includes('Exercise 5') ? 'letter' : (q.exercise_name.includes('Exercise 10') ? 'sentence' : 'word');
+                                let separator = type === 'letter' ? '' : (type === 'sentence' ? ' - ' : ' ');
+                                ans.split(separator).forEach(w => {
+                                    let wTrim = w.trim();
                                     for (let btn of document.querySelectorAll(`.reorder-btn-${qId}:not(.hidden)`)) {
-                                        if (btn.innerText === w) { btn.classList.add('hidden'); break; }
+                                        if (btn.innerText === wTrim) { btn.classList.add('hidden'); break; }
                                     }
                                 });
                             }
