@@ -29,8 +29,12 @@
 </head>
 <body class="text-slate-800 min-h-screen py-8 px-4 sm:px-6 relative">
 
+    <!-- Thẻ phiên bản để cô Linda biết đã cập nhật code thành công -->
+    <div class="fixed top-0 right-0 bg-blue-100 text-blue-600 font-bold text-xs px-3 py-1 rounded-bl-xl shadow-sm border-b border-l border-blue-200 z-50">
+        Bản Sư Phạm AI 4.0
+    </div>
+
     <div class="max-w-4xl mx-auto space-y-8 pt-4">
-        
         <header class="text-center mb-8 relative">
             <div class="inline-block bg-white px-10 py-5 rounded-full shadow-lg border-4 border-bamboo-400 mb-4 animate-bounce-gentle">
                 <h1 class="text-4xl sm:text-5xl font-extrabold text-bamboo-600 flex items-center justify-center gap-3">
@@ -75,10 +79,6 @@
                         <li><span class="inline-block w-20 text-magic-600 font-bold">Cách 1:</span> Hello / Hi. I'm + tên của mình.</li>
                         <li><span class="inline-block w-20 text-magic-600 font-bold">Cách 2:</span> Hello, / Hi, + tên người bạn. I'm + tên của mình.</li>
                     </ul>
-                    <div class="bg-white p-4 rounded-xl border border-magic-100 space-y-1 text-base">
-                        <p><b class="text-slate-800">Ex 1:</b> Hello. I'm Linda. <span class="text-slate-500">(Xin chào. Tớ là Linda.)</span></p>
-                        <p><b class="text-slate-800">Ex 2:</b> Hello, Ben. I'm Minh. <span class="text-slate-500">(Xin chào, Ben. Tớ là Minh.)</span></p>
-                    </div>
                 </div>
 
                 <div class="bg-magic-50 p-5 rounded-2xl border-2 border-magic-200">
@@ -92,15 +92,9 @@
                 <div class="bg-magic-50 p-5 rounded-2xl border-2 border-magic-200">
                     <h3 class="font-bold text-magic-700 text-xl mb-3">c. Chào tạm biệt</h3>
                     <ul class="list-disc pl-6 space-y-1 mb-4">
-                        <li><b class="text-slate-800">Goodbye!</b> – Tạm biệt! <span class="text-slate-500">(Dùng với người lớn tuổi.)</span></li>
-                        <li><b class="text-slate-800">Bye!</b> – Tạm biệt! <span class="text-slate-500">(Dùng với bạn bè.)</span></li>
+                        <li><b class="text-slate-800">Goodbye!</b> – Tạm biệt! <span class="text-slate-500">(người lớn tuổi)</span></li>
+                        <li><b class="text-slate-800">Bye!</b> – Tạm biệt! <span class="text-slate-500">(bạn bè)</span></li>
                     </ul>
-                    <div class="bg-white p-4 rounded-xl border border-magic-100 text-base">
-                        <ul class="space-y-1">
-                            <li><b class="text-slate-800">See you soon!</b> – Hẹn sớm gặp lại bạn!</li>
-                            <li><b class="text-slate-800">See you later!</b> – Hẹn gặp bạn sau nhé!</li>
-                        </ul>
-                    </div>
                 </div>
             </div>
         </section>
@@ -162,8 +156,9 @@
         let exercisesData = [];
         let userAnswers = {}; 
         let wordBanksData = {}; 
-        const STORAGE_KEY = 'unit1_linda_progress_ai_v2'; // Đổi ID bộ nhớ đệm để ép máy tính làm mới
+        const STORAGE_KEY = 'unit1_linda_progress_ai_v4'; // Đổi ID bộ nhớ đệm
 
+        // TẢI TỪ VỰNG
         async function fetchVocabulary() {
             try {
                 const { data, error } = await supabaseClient.from('vocabulary').select('*').eq('unit', 'Unit 1').order('id', { ascending: true });
@@ -180,15 +175,101 @@
         window.playVocabAudio = function(url) { document.getElementById('vocab-audio').src = url; document.getElementById('vocab-audio').play(); }
 
         // =========================================================================
-        // BỘ LỌC AI SƯ PHẠM - TỰ ĐỘNG SỬA DỮ LIỆU SAI VÀ BIÊN DỊCH GIẢI THÍCH
+        // THUẬT TOÁN TẠO GIẢI THÍCH ĐỘNG TỰ ĐỘNG THEO TỪNG CÂU (DYNAMIC EXPLANATION)
         // =========================================================================
+        function buildDynamicExplanation(qObj) {
+            let ans = String(qObj.correct_answer || "").trim();
+            let ansLower = ans.toLowerCase().replace(/[^a-z0-9\s]/g, '');
+            let qText = String(qObj.question || "").replace(/<[^>]*>?/gm, '').trim();
+            let dbExp = String(qObj.explanation || "").replace(/<[^>]*>?/gm, '').trim();
+
+            // 1. Tự động điền đáp án vào chỗ trống để tạo CÂU HOÀN CHỈNH (Step 4)
+            let fullSentence = qText;
+            if (qText.includes('___') || qText.includes('...')) {
+                fullSentence = qText.replace(/(_{2,}|\.{2,})/g, `<b class="text-bamboo-700 bg-bamboo-100 px-2 rounded">[ ${ans} ]</b>`);
+            } else {
+                fullSentence = `${qText} ➔ <b class="text-bamboo-700">${ans}</b>`;
+            }
+
+            // 2. Ưu tiên lấy Giải thích của cô Linda trên Supabase làm Step 1
+            let step1 = dbExp !== "" 
+                ? dbExp 
+                : `Từ "<b>${ans}</b>" là lựa chọn chính xác nhất, phù hợp với ngữ pháp và ngữ cảnh của câu.`;
+
+            // 3. Từ điển thông minh phân tích ngữ nghĩa (Step 2, 3, 5)
+            let step2 = `- <b>${ans}</b> là từ vựng/đáp án trọng tâm của câu này.`;
+            let step3 = `Đây là mẫu câu cơ bản trong Unit 1: Hello.`;
+            let step5 = `<i>Let's practice!</i> (Hãy đọc to câu hoàn chỉnh để ghi nhớ nhé!)`;
+
+            // Phân tích từ khóa để nội suy
+            if (ansLower.includes('ball') || qText.toLowerCase().includes('ball')) {
+                step2 = `- <b>Ball</b> /bɔːl/: Quả bóng<br/>- <b>Round</b>: Hình tròn<br/>- <b>Colourful</b>: Nhiều màu sắc`;
+                step3 = `Mẫu câu miêu tả đồ vật: <b>The + đồ vật + is + tính từ.</b>`;
+                step5 = `<i>The ball is red.</i> (Quả bóng màu đỏ.)`;
+            } else if (ansLower.includes('boy') || qText.toLowerCase().includes('boy')) {
+                step2 = `- <b>Boy</b> /bɔɪ/: Cậu bé, con trai.`;
+                step3 = `Dùng để chỉ giới tính nam (trẻ em).`;
+                step5 = `<i>He is a smart boy.</i> (Cậu ấy là một cậu bé thông minh.)`;
+            } else if (ansLower.includes('six') || qText.toLowerCase().includes('bird')) {
+                step2 = `- <b>Six</b> /sɪks/: Số 6<br/>- <b>Birds</b>: Những chú chim`;
+                step3 = `Cấu trúc đếm số lượng: <b>Số đếm + Danh từ số nhiều (thêm s).</b>`;
+                step5 = `<i>I have six books.</i> (Mình có 6 quyển sách.)`;
+            } else if (ansLower.includes('true') || ansLower.includes('đúng')) {
+                step2 = `- <b>True</b>: Đúng, chính xác.`;
+                step3 = `Dùng để xác nhận thông tin trên là hoàn toàn khớp với bài học.`;
+                step5 = `<i>It is true.</i> (Điều đó là đúng.)`;
+            } else if (ansLower.includes('false') || ansLower.includes('sai')) {
+                step2 = `- <b>False</b>: Sai, không đúng sự thật.`;
+                step3 = `Dùng để phủ nhận một thông tin không khớp với bài học.`;
+                step5 = `<i>It is false.</i> (Điều đó là sai.)`;
+            } else if (ansLower.includes('seeyouthen')) {
+                step2 = `- <b>See</b>: Gặp<br/>- <b>You</b>: Bạn<br/>- <b>Then</b>: Lúc đó`;
+                step3 = `Mẫu câu dùng khi tạm biệt và hẹn gặp lại vào một thời điểm đã thống nhất.`;
+                step5 = `<i>See you tomorrow!</i> (Hẹn gặp lại vào ngày mai!)`;
+            } else if (ansLower.includes('howareyou')) {
+                step2 = `- <b>How</b>: Thế nào<br/>- <b>Are</b>: Thì, là<br/>- <b>You</b>: Bạn`;
+                step3 = `Mẫu câu kinh điển dùng để hỏi thăm sức khỏe khi gặp nhau.`;
+                step5 = `<i>Hello, how are you?</i> (Xin chào, bạn khỏe không?)`;
+            } else if (ansLower.includes('imfine') || ansLower.includes('finethankyou') || ansLower.includes('howfine')) {
+                step2 = `- <b>Fine</b>: Khỏe, tốt<br/>- <b>Thank you / Thanks</b>: Cảm ơn`;
+                step3 = `Mẫu câu lịch sự dùng để đáp lại lời hỏi thăm sức khỏe.`;
+                step5 = `<i>I'm fine, thanks.</i> (Mình khỏe, cảm ơn nhé.)`;
+            } else if (ansLower.includes('byebyechildren') || ansLower.includes('goodbyechildren')) {
+                step2 = `- <b>Goodbye / Bye bye</b>: Tạm biệt<br/>- <b>Children</b>: Các em học sinh`;
+                step3 = `Mẫu câu giáo viên dùng để chào tạm biệt cả lớp khi tan học.`;
+                step5 = `<i>Goodbye, class!</i> (Tạm biệt cả lớp!)`;
+            } else if (ansLower.includes('hello') || ansLower.includes('hi')) {
+                step2 = `- <b>Hello / Hi</b>: Xin chào.`;
+                step3 = `Mẫu câu chào hỏi và giới thiệu tên: Hello, I'm...`;
+                step5 = `<i>Hi, I'm Linda.</i> (Chào, mình là Linda.)`;
+            } else if (ansLower.includes('goodmorning') || ansLower.includes('goodafternoon')) {
+                step2 = `- <b>Good</b>: Tốt lành<br/>- <b>Morning</b>: Buổi sáng<br/>- <b>Afternoon</b>: Buổi chiều`;
+                step3 = `Lời chào trang trọng theo từng buổi trong ngày.`;
+                step5 = `<i>Good evening!</i> (Chào buổi tối!)`;
+            } else if (ansLower.includes('nicetomeetyou')) {
+                step2 = `- <b>Nice</b>: Vui vẻ, tốt đẹp<br/>- <b>To meet</b>: Được gặp`;
+                step3 = `Lời bày tỏ sự thân thiện khi vừa giới thiệu tên và làm quen với người mới.`;
+                step5 = `<i>Nice to meet you, too.</i> (Mình cũng rất vui được gặp bạn.)`;
+            }
+
+            return `
+                <div class="space-y-2 mt-2 text-[15px] leading-relaxed">
+                    <p><b>① Vì sao đáp án đúng:</b> ${step1}</p>
+                    <p><b>② Nghĩa từ vựng:</b><br/> ${step2}</p>
+                    <p><b>③ Mẫu câu:</b> ${step3}</p>
+                    <p><b>④ Câu hoàn chỉnh / Dịch nghĩa:</b><br/> ${fullSentence}</p>
+                    <p><b>⑤ Ví dụ tương tự:</b> ${step5}</p>
+                </div>
+            `;
+        }
+
+        // TẢI BÀI TẬP & SỬA LỖI DATABASE
         async function fetchExercises() {
             try {
                 const { data, error } = await supabaseClient.from('exercises').select('*').eq('unit', 'Unit 1').order('id', { ascending: true });
                 if (error) throw error;
                 if (data.length === 0) throw new Error("Chưa có bài tập nào.");
 
-                // Từ điển làm đẹp chữ bị dính liền
                 const formatDictionary = {
                     'seeyouthen': 'See you then!',
                     'howareyou': 'How are you?',
@@ -204,37 +285,29 @@
                 };
 
                 data.forEach(q => {
-                    // SỬA LỖI 1: TỰ ĐỘNG FIX TỪ "SEE" THÀNH "SIX" ĐỂ TRÁNH SAI LỆCH
+                    // SỬA LỖI CHÍNH TẢ: Đổi "see" thành "six" (Bài con chim)
                     if (q.question_type === 'input' && q.correct_answer) {
-                        if (q.correct_answer.trim().toLowerCase() === 'see') {
-                            q.correct_answer = 'six';
-                        }
+                        if (q.correct_answer.trim().toLowerCase() === 'see') q.correct_answer = 'six';
                     }
 
-                    // LÀM ĐẸP ĐÁP ÁN CHO CÚ MÈO
+                    // TÁCH TỪ BỊ DÍNH LIỀN
                     if (q.question_type === 'input' && q.correct_answer) {
                         let ansLower = String(q.correct_answer).toLowerCase().replace(/[^a-z]/g, '');
                         q.display_correct_answer = formatDictionary[ansLower] || q.correct_answer;
                     }
 
-                    // SỬA LỖI 2: XỬ LÝ KHỚP ID ĐÁP ÁN TRẮC NGHIỆM VÀ TRUE/FALSE
+                    // FIX LỖI ĐÁP ÁN TRẮC NGHIỆM VÀ TRUE/FALSE
                     if (q.question_type === 'multiple_choice' || q.question_type === 'true_false') {
                         let rawOptions = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
                         q.options = rawOptions.map((opt, idx) => {
-                            let optionId = (q.question_type === 'true_false') 
-                                ? (idx === 0 ? 'True' : 'False') 
-                                : String.fromCharCode(65 + idx); 
-                            
+                            let optionId = (q.question_type === 'true_false') ? (idx === 0 ? 'True' : 'False') : String.fromCharCode(65 + idx); 
                             let optLower = (opt.text || opt).toLowerCase().replace(/[^a-z]/g, '');
                             let cleanText = formatDictionary[optLower] ? formatDictionary[optLower] : (opt.text || opt);
-
                             return { id: optionId, text: cleanText };
                         });
                         
                         if (q.correct_answer) {
                             let rawAns = String(q.correct_answer).replace(/<[^>]*>?/gm, '').trim();
-                            
-                            // Thuật toán thông minh tự động map chữ True/False vào nút Đúng/Sai
                             let matchedOpt = q.options.find(o => 
                                 o.id.toLowerCase() === rawAns.toLowerCase() || 
                                 o.text.toLowerCase().includes(rawAns.toLowerCase()) ||
@@ -245,7 +318,7 @@
                             );
                             
                             if (matchedOpt) {
-                                q.correct_answer = matchedOpt.id; // Ghi đè đúng ID
+                                q.correct_answer = matchedOpt.id; 
                             } else {
                                 if (q.question_type === 'multiple_choice') {
                                     let match = rawAns.match(/^([A-E])/i); 
@@ -257,85 +330,8 @@
                         }
                     }
 
-                    // SỬA LỖI 3: SINH LỜI GIẢI THÍCH CHUẨN 5 BƯỚC SƯ PHẠM
-                    let ansKey = (q.correct_answer || "").toLowerCase().replace(/[^a-z]/g, '');
-                    let explanationHtml = '';
-
-                    if (ansKey === 'seeyouthen') {
-                        explanationHtml = `
-                            <div class="space-y-2 mt-2 text-[15px]">
-                                <p><b>① Vì sao đáp án đúng:</b> Đây là câu chào tạm biệt phổ biến trong tiếng Anh.</p>
-                                <p><b>② Nghĩa từ vựng:</b><br/> - <i>See</i> = gặp<br/> - <i>You</i> = bạn<br/> - <i>Then</i> = lúc đó</p>
-                                <p><b>③ Mẫu câu:</b> Dùng khi tạm biệt và hẹn gặp lại vào một thời điểm đã thống nhất.</p>
-                                <p><b>④ Dịch nghĩa:</b> Hẹn gặp bạn lúc đó nhé!</p>
-                                <p><b>⑤ Ví dụ tương tự:</b><br/> - <i>See you tomorrow!</i> (Hẹn gặp bạn ngày mai!)<br/> - <i>See you at school!</i> (Hẹn gặp bạn ở trường!)</p>
-                            </div>`;
-                    } else if (ansKey === 'howareyou') {
-                        explanationHtml = `
-                            <div class="space-y-2 mt-2 text-[15px]">
-                                <p><b>① Vì sao đáp án đúng:</b> Đây là câu hỏi thăm sức khỏe cơ bản nhất.</p>
-                                <p><b>② Nghĩa từ vựng:</b><br/> - <i>How</i> = như thế nào<br/> - <i>Are</i> = thì, là, ở<br/> - <i>You</i> = bạn</p>
-                                <p><b>③ Mẫu câu:</b> Dùng để hỏi thăm xem ai đó hôm nay cảm thấy thế nào.</p>
-                                <p><b>④ Dịch nghĩa:</b> Bạn có khỏe không?</p>
-                                <p><b>⑤ Ví dụ tương tự:</b><br/> - <i>Hello, how are you?</i> (Xin chào, bạn khỏe không?)</p>
-                            </div>`;
-                    } else if (ansKey === 'imfine' || ansKey === 'finethankyou' || ansKey === 'howfine') {
-                        explanationHtml = `
-                            <div class="space-y-2 mt-2 text-[15px]">
-                                <p><b>① Vì sao đáp án đúng:</b> Câu trả lời tiêu chuẩn khi được hỏi "How are you?".</p>
-                                <p><b>② Nghĩa từ vựng:</b><br/> - <i>Fine</i> = khỏe, tốt<br/> - <i>Thank you / Thanks</i> = cảm ơn bạn</p>
-                                <p><b>③ Mẫu câu:</b> Dùng để đáp lại lời hỏi thăm và thể hiện sự lịch sự.</p>
-                                <p><b>④ Dịch nghĩa:</b> Mình khỏe, cảm ơn bạn.</p>
-                                <p><b>⑤ Ví dụ tương tự:</b><br/> - <i>I'm fine, thanks.</i> (Mình khỏe, cảm ơn.)</p>
-                            </div>`;
-                    } else if (ansKey === 'byebyechildren' || ansKey === 'goodbyechildren') {
-                        explanationHtml = `
-                            <div class="space-y-2 mt-2 text-[15px]">
-                                <p><b>① Vì sao đáp án đúng:</b> Câu chào tạm biệt của giáo viên dành cho học sinh.</p>
-                                <p><b>② Nghĩa từ vựng:</b><br/> - <i>Goodbye / Bye bye</i> = tạm biệt<br/> - <i>Children</i> = các em học sinh</p>
-                                <p><b>③ Mẫu câu:</b> Dùng khi kết thúc tiết học hoặc ra về.</p>
-                                <p><b>④ Dịch nghĩa:</b> Tạm biệt các em.</p>
-                                <p><b>⑤ Ví dụ tương tự:</b><br/> - <i>Goodbye, class!</i> (Tạm biệt cả lớp!)</p>
-                            </div>`;
-                    } else if (ansKey === 'goodmorning' || ansKey.includes('morning')) {
-                        explanationHtml = `
-                            <div class="space-y-2 mt-2 text-[15px]">
-                                <p><b>① Vì sao đáp án đúng:</b> Câu chào dùng vào buổi sáng.</p>
-                                <p><b>② Nghĩa từ vựng:</b><br/> - <i>Good</i> = tốt lành<br/> - <i>Morning</i> = buổi sáng</p>
-                                <p><b>③ Mẫu câu:</b> Lời chào lịch sự khi gặp nhau vào buổi sáng.</p>
-                                <p><b>④ Dịch nghĩa:</b> Chào buổi sáng.</p>
-                                <p><b>⑤ Ví dụ tương tự:</b><br/> - <i>Good afternoon!</i> (Chào buổi chiều!)</p>
-                            </div>`;
-                    } else if (ansKey.includes('hello') || ansKey.includes('hi')) {
-                        explanationHtml = `
-                            <div class="space-y-2 mt-2 text-[15px]">
-                                <p><b>① Vì sao đáp án đúng:</b> Mẫu câu chào hỏi và giới thiệu tên cơ bản.</p>
-                                <p><b>② Nghĩa từ vựng:</b> <i>Hello / Hi</i> = Xin chào.</p>
-                                <p><b>③ Mẫu câu:</b> Dùng "Hello, I'm..." để chào và giới thiệu bản thân.</p>
-                                <p><b>④ Dịch nghĩa:</b> Xin chào, mình là...</p>
-                                <p><b>⑤ Ví dụ tương tự:</b><br/> - <i>Hi, I'm Linda.</i> (Chào, mình là Linda.)</p>
-                            </div>`;
-                    } else if (ansKey.includes('nicetomeetyou')) {
-                        explanationHtml = `
-                            <div class="space-y-2 mt-2 text-[15px]">
-                                <p><b>① Vì sao đáp án đúng:</b> Câu nói lịch sự khi lần đầu làm quen với ai đó.</p>
-                                <p><b>② Nghĩa từ vựng:</b><br/> - <i>Nice</i> = vui vẻ, tốt đẹp<br/> - <i>To meet</i> = được gặp</p>
-                                <p><b>③ Mẫu câu:</b> Bày tỏ sự thân thiện khi vừa giới thiệu tên xong.</p>
-                                <p><b>④ Dịch nghĩa:</b> Rất vui được gặp bạn.</p>
-                                <p><b>⑤ Ví dụ tương tự:</b><br/> - <i>Nice to meet you, too.</i> (Mình cũng rất vui được gặp bạn.)</p>
-                            </div>`;
-                    } else {
-                        let originalExp = q.explanation || 'Em hãy ôn lại phần Lý thuyết ở trên để hiểu rõ cấu trúc câu nhé!';
-                        explanationHtml = `
-                            <div class="space-y-2 mt-2 text-[15px]">
-                                <p><b>① Vì sao đáp án đúng:</b> Dựa vào ngữ pháp Unit 1: Hello.</p>
-                                <p><b>② Chi tiết bài học:</b> ${originalExp}</p>
-                                <p><b>③ Mẫu câu:</b> Đây là cấu trúc trọng tâm trong Tiếng Anh lớp 3.</p>
-                                <p><b>④ Dịch nghĩa:</b> Em hãy xem lại phần Grammar (Ngữ pháp) nhé.</p>
-                                <p><b>⑤ Ví dụ tương tự:</b> <i>Hello, how are you?</i></p>
-                            </div>`;
-                    }
-                    q.explanation = explanationHtml;
+                    // GỌI CỖ MÁY AI SƯ PHẠM ĐỂ SINH GIẢI THÍCH
+                    q.explanation = buildDynamicExplanation(q);
                 });
 
                 exercisesData = data;
@@ -485,7 +481,6 @@
             saveProgress(); 
         }
 
-        // TÀNG HÌNH TỪ VỰNG TRONG BÀI SẮP XẾP CÂU
         window.appendReorderWord = function(qId, word, wIdx) {
             const btn = document.getElementById(`reorder-btn-${qId}-${wIdx}`);
             if (btn.classList.contains('hidden')) return; 
@@ -517,7 +512,6 @@
             }
         }
 
-        // THUẬT TOÁN TÀNG HÌNH TRONG WORD BANK (Khớp số lượng từ)
         function updateWordBankUI(exName) {
             const container = document.querySelector(`.word-bank-words[data-exname="${exName}"]`);
             if (!container) return;
@@ -544,7 +538,6 @@
             }).join('');
         }
 
-        // SỬA LỖI ĐIỀN NHIỀU Ô CÙNG 1 CÂU
         window.handleMultiInput = function(qId) {
             const inputs = document.querySelectorAll(`input[data-qid="${qId}"]`);
             let vals = [];
@@ -555,7 +548,7 @@
             });
             
             if (hasValue) {
-                userAnswers[qId] = vals.join('|'); // Gom tất cả các ô lại bằng dấu gạch đứng
+                userAnswers[qId] = vals.join('|');
             } else {
                 delete userAnswers[qId];
             }
@@ -614,7 +607,6 @@
         }
         window.resetAllProgress = function() { if(confirm("Em có muốn làm lại từ đầu không?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
 
-        // --- HÀM CHẤM BÀI 100% ---
         window.submitLesson = async function() {
             const nameContainer = document.getElementById('name-container');
             const studentNameInput = document.getElementById('student-name');
@@ -629,7 +621,6 @@
                 return;
             } else nameContainer.classList.remove('ring-4', 'ring-red-300', 'bg-red-50');
 
-            // THIẾT QUÂN LUẬT: Bắt buộc làm 100%
             const answeredCount = Object.keys(userAnswers).length;
             if (answeredCount < exercisesData.length) {
                 warning.innerHTML = `⚠️ Em mới làm <b>${answeredCount}/${exercisesData.length}</b> câu. Hãy hoàn thành nốt nhé!`;
