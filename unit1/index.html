@@ -161,7 +161,13 @@
         // TẢI TỪ VỰNG
         async function fetchVocabulary() {
             try {
-                const { data, error } = await supabaseClient.from('vocabulary').select('*').eq('unit', 'Unit 1').order('id', { ascending: true });
+                const urlParams = new URLSearchParams(window.location.search);
+                const unitName = urlParams.get('unit') || 'Unit 1';
+
+                const { data, error } = await supabaseClient.from('vocabulary')
+                    .select('*')
+                    .eq('unit', unitName)
+                    .order('id', { ascending: true });
                 if (error) throw error;
                 const container = document.getElementById('vocabulary-container');
                 if (data) {
@@ -266,7 +272,16 @@
         // TẢI BÀI TẬP & SỬA LỖI DATABASE
         async function fetchExercises() {
             try {
-                const { data, error } = await supabaseClient.from('exercises').select('*').eq('unit', 'Unit 1').order('id', { ascending: true });
+                const urlParams = new URLSearchParams(window.location.search);
+                const unitName = urlParams.get('unit') || 'Unit 1';
+                const bookId = urlParams.get('book_id');
+
+                let query = supabaseClient.from('exercises').select('*').eq('unit', unitName);
+                if (bookId) {
+                    query = query.eq('book_id', bookId);
+                }
+
+                const { data, error } = await query.order('id', { ascending: true });
                 if (error) throw error;
                 if (data.length === 0) throw new Error("Chưa có bài tập nào.");
 
@@ -724,9 +739,20 @@
             let recommendations = "Xuất sắc! Em đã nắm rất vững kiến thức.";
             if (uniqueMistakes.length > 0) recommendations = "Cần ôn tập lại lý thuyết và cẩn thận hơn ở: " + uniqueMistakes.join(', ') + ".";
 
+            const urlParams = new URLSearchParams(window.location.search);
+            const unitName = urlParams.get('unit') || 'Unit 1: HELLO';
+            const studentId = urlParams.get('student_id') || null;
+            const assignmentId = urlParams.get('assignment_id') || null;
+
             supabaseClient.from('results').insert([{
-                student_name: studentName, unit: 'Unit 1: HELLO', exercises_done: 'Đã hoàn thành',
-                correct_count: score, incorrect_count: totalQs - score, recommendations: recommendations
+                student_name: studentName,
+                student_id: studentId,
+                assignment_id: assignmentId,
+                unit: unitName,
+                exercises_done: 'Đã hoàn thành',
+                correct_count: score,
+                incorrect_count: totalQs - score,
+                recommendations: recommendations
             }]).then(({ error }) => { if (error) console.error("Lỗi liên thông:", error); });
 
             document.getElementById('submit-container').classList.add('hidden');
