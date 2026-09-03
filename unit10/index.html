@@ -178,22 +178,22 @@
         let wordSearchState = {}; 
 
         // TỪ ĐIỂN DỊCH TIÊU ĐỀ TIẾNG VIỆT TỔNG QUÁT (CẬP NHẬT CHUẨN UNIT 10)
-        function getVietnameseTitle(exName) {
-            if (exName.includes('Exercise 1')) return "Bài 1: Nhìn ảnh và điền chữ cái còn thiếu.";
-            if (exName.includes('Exercise 2')) return "Bài 2: Hoàn thành câu bằng các từ tìm được ở Bài 1.";
-            if (exName.includes('Exercise 3')) return "Bài 3: Chọn từ khác loại.";
-            if (exName.includes('Exercise 4')) return "Bài 4: Nhìn ảnh và chọn từ trong khung điền dưới mỗi ảnh.";
-            if (exName.includes('Exercise 5')) return "Bài 5: Đọc và điền từ trong khung vào chỗ trống để hoàn thành câu.";
-            if (exName.includes('Exercise 6')) return "Bài 6: Nối câu ở cột A với đáp án đúng ở cột B.";
-            if (exName.includes('Exercise 7')) return "Bài 7: Nhìn ảnh và điền từ hoàn thành câu.";
-            if (exName.includes('Exercise 8')) return "Bài 8: Đọc đoạn văn và điền từ vào chỗ trống.";
-            if (exName.includes('Exercise 9')) return "Bài 9: Đọc lại đoạn văn ở bài 8 và trả lời câu hỏi.";
-            if (exName.includes('Exercise 10')) return "Bài 10: Chọn đáp án đúng nhất.";
-            if (exName.includes('Exercise 11')) return "Bài 11: Nhìn ảnh và viết câu hoàn chỉnh.";
-            if (exName.includes('Exercise 12')) return "Bài 12: Dựa vào thông tin để đặt câu hỏi và trả lời.";
-            if (exName.includes('Exercise 13')) return "Bài 13: Điền dạng đúng của động từ to be: is, am, are.";
-            if (exName.includes('Exercise 14')) return "Bài 14: Tìm lỗi sai và viết lại câu cho đúng.";
+       function getVietnameseTitle(exName) {
             if (exName.includes('Exercise 15')) return "Bài 15: Sắp xếp các từ để tạo thành câu hoàn chỉnh.";
+            if (exName.includes('Exercise 14')) return "Bài 14: Tìm lỗi sai và viết lại các câu cho đúng.";
+            if (exName.includes('Exercise 13')) return "Bài 13: Hoàn thành câu với dạng đúng của động từ to be: is, am, are.";
+            if (exName.includes('Exercise 12')) return "Bài 12: Đặt câu hỏi và trả lời về các môn thể thao/trò chơi ở bảng trên. Câu 0 là ví dụ.";
+            if (exName.includes('Exercise 11')) return "Bài 11: Nhìn ảnh và viết các câu đúng. Câu 1 là ví dụ.";
+            if (exName.includes('Exercise 10')) return "Bài 10: Chọn đáp án đúng nhất.";
+            if (exName.includes('Exercise 9')) return "Bài 9: Đọc lại đoạn văn ở bài 8 và trả lời câu hỏi.";
+            if (exName.includes('Exercise 8')) return "Bài 8: Đọc đoạn văn và điền từ vào chỗ trống.";
+            if (exName.includes('Exercise 7')) return "Bài 7: Nhìn ảnh và điền từ hoàn thành câu.";
+            if (exName.includes('Exercise 6')) return "Bài 6: Nối câu ở cột A với đáp án đúng ở cột B.";
+            if (exName.includes('Exercise 5')) return "Bài 5: Đọc và điền từ trong khung vào chỗ trống để hoàn thành câu.";
+            if (exName.includes('Exercise 4')) return "Bài 4: Nhìn ảnh và chọn từ trong khung điền dưới mỗi ảnh.";
+            if (exName.includes('Exercise 3')) return "Bài 3: Chọn từ khác loại.";
+            if (exName.includes('Exercise 2')) return "Bài 2: Hoàn thành câu bằng các từ tìm được ở Bài 1.";
+            if (exName.includes('Exercise 1')) return "Bài 1: Nhìn ảnh và điền chữ cái còn thiếu.";
             return "";
         }
 
