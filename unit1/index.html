@@ -165,9 +165,10 @@
                 const unitName = urlParams.get('unit') || 'Unit 1';
 
                 const { data, error } = await supabaseClient.from('vocabulary')
-                    .select('*')
-                    .eq('unit', unitName)
-                    .order('id', { ascending: true });
+    .select('*')
+    .eq('unit', unitName)
+    .eq('book_id', 1) // Ép cứng chỉ lấy từ vựng sách Lớp 3
+    .order('id', { ascending: true });
                 if (error) throw error;
                 const container = document.getElementById('vocabulary-container');
                 if (data) {
