@@ -45,7 +45,7 @@
 <body class="text-slate-800 min-h-screen py-8 px-4 sm:px-6 relative">
 
     <div class="fixed top-0 right-0 bg-blue-100 text-blue-600 font-bold text-xs px-3 py-1 rounded-bl-xl shadow-sm border-b border-l border-blue-200 z-50">
-        Unit 4: OUR BODIES
+        Bản Sư Phạm AI 4.0 (Đã khóa book_id Lớp 3)
     </div>
 
     <div class="max-w-4xl mx-auto space-y-8 pt-4">
@@ -138,13 +138,10 @@
     <!-- MODAL KẾT QUẢ ĐIỂM SỐ -->
     <div id="result-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border-8 border-sunny-400 transform scale-95 transition-transform duration-300" id="modal-content">
-            <div class="text-6xl mb-2" id="modal-emoji" style="position: relative;">
-                🎉
-            </div>
+            <div class="text-6xl mb-2" id="modal-emoji" style="position: relative;">🎉</div>
             <h2 class="text-3xl font-extrabold text-bamboo-600 mb-2" id="modal-title">Chúc mừng con!</h2>
             
             <div class="flex flex-col items-center justify-center border-t border-b border-slate-100 py-6 my-4 relative">
-                <!-- Sticker khen thưởng từ Cô Linda -->
                 <div id="sticker-badge" class="absolute -top-6 -right-4 bg-yellow-300 text-yellow-800 font-black px-4 py-2 rounded-full transform rotate-12 shadow-lg border-2 border-white hidden z-10 text-sm">
                     ✨ CÔ LINDA KHEN CON!
                 </div>
@@ -180,8 +177,9 @@
         let userAnswers = {}; 
         let wordBanksData = {}; 
         let globalAudioObj = null; 
-        const STORAGE_KEY = 'unit4_linda_progress_v2'; 
+        const STORAGE_KEY = 'unit4_linda_progress_l3_v1'; 
 
+        // TẢI TỪ VỰNG (KHÓA CỨNG MÃ LỚP 3)
         async function fetchVocabulary() {
             try {
                 const urlParams = new URLSearchParams(window.location.search);
@@ -190,8 +188,10 @@
                 const { data, error } = await supabaseClient.from('vocabulary')
                     .select('*')
                     .eq('unit', unitName)
+                    .eq('book_id', 1) 
                     .order('id', { ascending: true });
                 if (error) throw error;
+                
                 const container = document.getElementById('vocabulary-container');
                 if (data) {
                     data.forEach(vocab => {
@@ -201,6 +201,7 @@
                 }
             } catch (err) { console.error("Lỗi tải từ vựng:", err); }
         }
+
         window.playVocabAudio = function(url) { 
             if (globalAudioObj) {
                 globalAudioObj.pause();
@@ -210,9 +211,10 @@
             globalAudioObj.play().catch(e => console.log("Audio play error:", e));
         }
 
-        // BỘ LỌC AI SƯ PHẠM - CÔ MS. LINDA HƯỚNG DẪN BẰNG FORMAT ||| TỪ DATABASE
+        // AI SƯ PHẠM - DÀNH RIÊNG CHO UNIT 4 (BODY PARTS)
         function buildDynamicExplanation(qObj) {
             let ans = String(qObj.correct_answer || "").trim();
+            let ansLower = ans.toLowerCase().replace(/[^a-z0-9\s]/g, '');
             let qText = String(qObj.question || "").replace(/<[^>]*>?/gm, '').trim();
             let dbExp = String(qObj.explanation || "").trim();
 
@@ -229,30 +231,66 @@
 
             if (dbExp.includes('|||')) {
                 let parts = dbExp.split('|||');
-                return `
-                    <div class="space-y-2 mt-2 text-[15px] leading-relaxed text-slate-700">
-                        <p><b>① Vì sao đáp án đúng:</b> ${parts[0]}</p>
-                        <p><b>② Kiến thức trọng tâm:</b> ${parts[1]}</p>
-                        <p><b>③ Câu hoàn chỉnh:</b> ${parts[2]}</p>
-                    </div>
-                `;
+                return `<div class="space-y-2 mt-2 text-[15px] leading-relaxed text-slate-700"><p><b>① Vì sao đáp án đúng:</b> ${parts[0]}</p><p><b>② Kiến thức trọng tâm:</b> ${parts[1]}</p><p><b>③ Câu hoàn chỉnh:</b> ${parts[2]}</p></div>`;
             } else if (dbExp !== "") {
                 return `<div class="space-y-2 mt-2 text-[15px] leading-relaxed text-slate-700">${dbExp.replace(/\n/g, '<br>')}</div>`;
             }
 
-            return `<div class="space-y-2 mt-2 text-[15px] leading-relaxed text-slate-700"><p><b>① Vì sao đáp án đúng:</b> Cô Ms. Linda khen con, đáp án chính xác là "<b>${ans.replace(/\|/g, ' / ')}</b>".</p><p><b>② Kiến thức trọng tâm:</b> Từ vựng/Ngữ pháp Unit 4.</p><p><b>③ Câu hoàn chỉnh:</b> ${fullSentence}</p></div>`;
+            let step1 = `Cô Ms. Linda giải thích cho con nhé: Đáp án chính xác là "<b>${ans.replace(/\|/g, ' và ')}</b>".`;
+            let step2 = `- <b>${ans.replace(/\|/g, ' / ')}</b> là từ vựng quan trọng.`;
+            let step3 = `Đây là điểm ngữ pháp quan trọng trong Unit 4: Our Bodies.`;
+            let step5 = `<i>Let's practice!</i> (Hãy làm điệu bộ và đọc to câu nhé!)`;
+
+            // Tự động phân tích từ vựng Cơ Thể (Body parts)
+            if (ansLower.includes('head') || qText.toLowerCase().includes('head')) {
+                step2 = `- <b>Head</b> /hed/: Cái đầu`;
+                step5 = `<i>Touch your head!</i> (Hãy chạm vào đầu của bạn!)`;
+            } else if (ansLower.includes('hair') || qText.toLowerCase().includes('hair')) {
+                step2 = `- <b>Hair</b> /heə(r)/: Mái tóc`;
+                step5 = `<i>Touch your hair!</i> (Hãy chạm vào tóc của bạn!)`;
+            } else if (ansLower.includes('eye') || qText.toLowerCase().includes('eye')) {
+                step2 = `- <b>Eye</b> /aɪ/: Con mắt (số nhiều: eyes)`;
+                step5 = `<i>Open your eyes!</i> (Hãy mở mắt ra!)`;
+            } else if (ansLower.includes('ear') || qText.toLowerCase().includes('ear')) {
+                step2 = `- <b>Ear</b> /ɪə(r)/: Cái tai (số nhiều: ears)`;
+                step5 = `<i>Touch your ears!</i> (Hãy chạm vào tai!)`;
+            } else if (ansLower.includes('face') || qText.toLowerCase().includes('face')) {
+                step2 = `- <b>Face</b> /feɪs/: Khuôn mặt`;
+                step5 = `<i>Wash your face!</i> (Hãy rửa mặt!)`;
+            } else if (ansLower.includes('hand') || qText.toLowerCase().includes('hand')) {
+                step2 = `- <b>Hand</b> /hænd/: Bàn tay`;
+                step5 = `<i>Touch your hand!</i> (Hãy chạm vào bàn tay!)`;
+            } else if (ansLower.includes('touch') || qText.toLowerCase().includes('touch')) {
+                step2 = `- <b>Touch</b> /tʌtʃ/: Chạm vào`;
+                step3 = `Câu mệnh lệnh: <b>Touch your + bộ phận cơ thể!</b> (Hãy chạm vào...)`;
+                step5 = `<i>Touch your nose!</i> (Hãy chạm vào mũi!)`;
+            } else if (ansLower.includes('open') || qText.toLowerCase().includes('open')) {
+                step2 = `- <b>Open</b> /ˈəʊpən/: Mở ra`;
+                step3 = `Câu mệnh lệnh: <b>Open your + mắt/miệng!</b> (Hãy mở...)`;
+                step5 = `<i>Open your mouth!</i> (Hãy mở miệng ra!)`;
+            } else if (qText.toLowerCase().includes('what') && qText.toLowerCase().includes('this')) {
+                step3 = `Mẫu câu hỏi xem đây là cái gì: <b>What's this?</b> ➔ Trả lời: <b>It's a/an + tên bộ phận.</b>`;
+            }
+
+            return `
+                <div class="space-y-2 mt-2 text-[15px] leading-relaxed text-slate-700">
+                    <p><b>① Vì sao đáp án đúng:</b> ${step1}</p>
+                    <p><b>② Nghĩa từ vựng:</b><br/> ${step2}</p>
+                    <p><b>③ Cấu trúc:</b><br/> ${step3}</p>
+                    <p><b>④ Câu hoàn chỉnh:</b><br/> ${fullSentence}</p>
+                    <p><b>⑤ Thực hành:</b> ${step5}</p>
+                </div>
+            `;
         }
 
+        // TẢI BÀI TẬP (KHÓA CỨNG MÃ LỚP 3)
         async function fetchExercises() {
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const unitName = urlParams.get('unit') || 'Unit 4';
-                const bookId = urlParams.get('book_id');
 
-                let query = supabaseClient.from('exercises').select('*').eq('unit', unitName);
-                if (bookId) {
-                    query = query.eq('book_id', bookId);
-                }
+                // ÉP CỨNG book_id = 1
+                let query = supabaseClient.from('exercises').select('*').eq('unit', unitName).eq('book_id', 1);
 
                 const { data, error } = await query.order('id', { ascending: true });
                 if (error) throw error;
@@ -283,6 +321,7 @@
             } catch (error) { document.getElementById('loading').innerHTML = `<div class="text-red-500 font-bold text-xl text-center">Lỗi: ${error.message}</div>`; }
         }
 
+        // RENDER BÀI TẬP
         function renderExercisesGrouped(data) {
             const container = document.getElementById('exercises-container');
             document.getElementById('loading').classList.add('hidden');
@@ -302,21 +341,15 @@
                 exBlock.className = 'bg-slate-50 border-2 border-slate-200 p-5 rounded-2xl shadow-sm relative';
                 
                 let translatedExName = exName;
-                if (exName.includes('Exercise 1:')) translatedExName = 'Bài 1: Nhìn ảnh và điền vần air hoặc ear còn thiếu.';
-                else if (exName.includes('Exercise 2:')) translatedExName = 'Bài 2: Hoàn thành các câu sau bằng các từ ở bài tập 1.';
+                if (exName.includes('Exercise 1:')) translatedExName = 'Bài 1: Nhìn ảnh và điền từ còn thiếu.';
+                else if (exName.includes('Exercise 2:')) translatedExName = 'Bài 2: Hoàn thành các câu sau.';
                 else if (exName.includes('Exercise 3:')) translatedExName = 'Bài 3: Nhìn hình và viết đúng từ vựng tiếng Anh.';
                 else if (exName.includes('Exercise 4:')) translatedExName = 'Bài 4: Nhìn ảnh và viết đúng từ vựng tương ứng.';
                 else if (exName.includes('Exercise 5:')) translatedExName = 'Bài 5: Sắp xếp lại các chữ cái thành từ đúng.';
-                else if (exName.includes('Exercise 6:')) translatedExName = 'Bài 6: Đọc và nối hai vế để tạo thành câu đúng.';
+                else if (exName.includes('Exercise 6:')) translatedExName = 'Bài 6: Chọn đáp án đúng.';
                 else if (exName.includes('Exercise 7:')) translatedExName = 'Bài 7: Nhìn ảnh và trả lời câu hỏi.';
-                else if (exName.includes('Exercise 8:')) translatedExName = 'Bài 8: Điền dạng đúng của động từ to be (is, am, are).';
-                else if (exName.includes('Exercise 9:')) translatedExName = 'Bài 9: Điền từ còn thiếu vào chỗ trống.';
-                else if (exName.includes('Exercise 10:')) translatedExName = 'Bài 10: Đọc và hoàn thành đoạn hội thoại.';
-                else if (exName.includes('Exercise 11:')) translatedExName = 'Bài 11: Đọc và nối (kết hợp) Touch hoặc Open với bộ phận cơ thể.';
-                else if (exName.includes('Exercise 12:')) translatedExName = 'Bài 12: Nhìn ảnh và viết câu mệnh lệnh bắt đầu với Touch hoặc Open.';
-                else if (exName.includes('Exercise 13:')) translatedExName = 'Bài 13: Chọn đáp án đúng nhất để hoàn thành câu.';
-                else if (exName.includes('Exercise 14:')) translatedExName = 'Bài 14: Đọc câu và chọn bức ảnh tương ứng.';
-                else if (exName.includes('Exercise 15:')) translatedExName = 'Bài 15: Nhìn ảnh và chọn đáp án miêu tả đúng.';
+                else if (exName.includes('Exercise 8:')) translatedExName = 'Bài 8: Điền từ thích hợp.';
+                else if (exName.includes('Exercise 9:')) translatedExName = 'Bài 9: Sắp xếp các từ thành câu hoàn chỉnh.';
                 else translatedExName = exName; 
 
                 exBlock.innerHTML = `<h3 class="text-xl font-extrabold text-sunny-600 mb-5 border-b-2 border-slate-200 pb-3 flex flex-col gap-2">
@@ -328,7 +361,24 @@
                     </div>
                 </h3>`;
 
-                // COMPONENT MATCHING (Bài 6, Bài 14)
+                if (questions.some(q => q.use_word_bank)) {
+                    let words = [];
+                    questions.forEach(q => { if(q.use_word_bank && q.correct_answer) words = words.concat(q.correct_answer.split('|').join(',').split(',').map(w => w.trim())); });
+                    words.sort(() => Math.random() - 0.5); 
+                    wordBanksData[exName] = words;
+                    
+                    const wbHtml = `
+                        <div class="bg-white border-2 border-magic-200 p-4 rounded-xl mb-6 shadow-sm sticky top-4 z-10">
+                            <div class="font-bold text-magic-600 text-sm mb-2">🏷️ CHỌN TỪ ĐỂ ĐIỀN:</div>
+                            <div class="flex flex-wrap gap-2 word-bank-words" data-exname="${exName}">
+                                ${words.map(w => `<button type="button" data-word="${w.replace(/"/g, '&quot;')}" onclick="fillWordBank('${exName}', this.getAttribute('data-word'))" class="bg-magic-50 text-magic-700 hover:bg-magic-200 hover:scale-105 transition px-4 py-2 rounded-lg border border-magic-300 font-bold shadow-sm">${w}</button>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                    exBlock.insertAdjacentHTML('beforeend', wbHtml);
+                }
+
+                // XỬ LÝ DẠNG MATCHING (NỐI)
                 if (questions.some(q => q.question_type === 'matching')) {
                     const matchContainer = document.createElement('div');
                     matchContainer.className = 'grid grid-cols-1 md:grid-cols-2 gap-8 w-full mt-4';
@@ -424,25 +474,7 @@
                     continue; 
                 }
 
-                // WORD BANK
-                if (questions.some(q => q.use_word_bank)) {
-                    let words = [];
-                    questions.forEach(q => { if(q.use_word_bank && q.correct_answer) words = words.concat(q.correct_answer.split('|').join(',').split(',').map(w => w.trim())); });
-                    words.sort(() => Math.random() - 0.5); 
-                    wordBanksData[exName] = words;
-                    
-                    const wbHtml = `
-                        <div class="bg-white border-2 border-magic-200 p-4 rounded-xl mb-6 shadow-sm sticky top-4 z-10">
-                            <div class="font-bold text-magic-600 text-sm mb-2">🏷️ CHỌN TỪ ĐỂ ĐIỀN:</div>
-                            <div class="flex flex-wrap gap-2 word-bank-words" data-exname="${exName}">
-                                ${words.map(w => `<button type="button" data-word="${w.replace(/"/g, '&quot;')}" onclick="fillWordBank('${exName}', this.getAttribute('data-word'))" class="bg-magic-50 text-magic-700 hover:bg-magic-200 hover:scale-105 transition px-4 py-2 rounded-lg border border-magic-300 font-bold shadow-sm">${w}</button>`).join('')}
-                            </div>
-                        </div>
-                    `;
-                    exBlock.insertAdjacentHTML('beforeend', wbHtml);
-                }
-
-                // CÁC COMPONENT KHÁC (Grid, Multiple Choice, Reorder, Input)
+                // CÁC COMPONENT KHÁC
                 let isGrid = exName.includes('Exercise 1:') || exName.includes('Exercise 3:') || exName.includes('Exercise 4:') || exName.includes('Exercise 7:') || exName.includes('Exercise 12:') || exName.includes('Exercise 15:'); 
                 const itemsContainer = document.createElement('div');
                 itemsContainer.className = isGrid ? 'grid grid-cols-2 md:grid-cols-3 gap-6' : 'space-y-6';
@@ -488,6 +520,14 @@
                         let words = qText.split('➔')[0].trim().split('');
                         let chipsHtml = words.map((w, wIdx) => `<button type="button" id="reorder-btn-${q.id}-${wIdx}" data-word="${w.replace(/"/g, '&quot;')}" onclick="appendReorderWord('${q.id}', this.getAttribute('data-word'), ${wIdx}, 'letter')" class="reorder-btn-${q.id} bg-blue-50 text-blue-700 hover:bg-blue-200 px-4 py-2 rounded-xl border-2 border-blue-200 font-bold shadow-sm active:scale-95 transition text-lg">${w}</button>`).join('');
                         qContent.innerHTML = `${imageHtml}<div class="mb-3 text-sm text-slate-500 italic font-bold">Bấm vào các mảnh ghép chữ cái:</div><div class="flex flex-wrap gap-2 mb-4 p-4 bg-slate-50 rounded-2xl border border-slate-200">${chipsHtml}</div><div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full"><span class="text-sunny-500 font-bold text-2xl hidden sm:inline-block">➔</span> <input type="text" id="input-ex-${q.id}-0" data-qid="${q.id}" class="ex-input w-full text-left px-4 py-2 text-blue-700 multi-input text-lg tracking-[0.2em] uppercase" placeholder="${placeholderTxt}" readonly> <button type="button" onclick="clearReorder('${q.id}', 'letter')" class="bg-slate-200 text-slate-600 px-4 py-2 rounded-xl font-bold hover:bg-red-100 hover:text-red-600 shrink-0 transition">Xóa lại</button></div>`;
+                    }
+                    // REORDER WORDS
+                    else if (exName.includes('Reorder') || exName.includes('Exercise 9:') || exName.includes('Exercise 10:')) {
+                        let placeholderTxt = "Câu hoàn chỉnh...";
+                        let cleanQText = qText.split('➔')[0].replace(/<br>/g, '').trim();
+                        let words = cleanQText.split('/').map(w => w.trim()).filter(w => w !== '');
+                        let chipsHtml = words.map((w, wIdx) => `<button type="button" id="reorder-btn-${q.id}-${wIdx}" data-word="${w.replace(/"/g, '&quot;')}" onclick="appendReorderWord('${q.id}', this.getAttribute('data-word'), ${wIdx}, 'word')" class="reorder-btn-${q.id} bg-blue-50 text-blue-700 hover:bg-blue-200 px-4 py-2 rounded-xl border-2 border-blue-200 font-bold shadow-sm active:scale-95 transition text-lg">${w}</button>`).join('');
+                        qContent.innerHTML = `${imageHtml}<div class="mb-3 text-sm text-slate-500 italic font-bold text-left w-full">Bấm vào các từ:</div><div class="flex flex-wrap gap-2 mb-4 p-4 bg-slate-50 rounded-2xl border border-slate-200 w-full">${chipsHtml}</div><div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full"><span class="text-sunny-500 font-bold text-2xl hidden sm:inline-block">➔</span> <input type="text" id="input-ex-${q.id}-0" data-qid="${q.id}" class="ex-input w-full text-left px-4 py-2 text-blue-700 multi-input text-lg" placeholder="${placeholderTxt}" readonly> <button type="button" onclick="clearReorder('${q.id}', 'word')" class="bg-slate-200 text-slate-600 px-4 py-2 rounded-xl font-bold hover:bg-red-100 hover:text-red-600 shrink-0 transition">Xóa lại</button></div>`;
                     }
                     // INPUT REGULAR
                     else if (q.question_type === 'input') {
@@ -616,8 +656,7 @@
 
         window.handleMultiInput = function(qId) {
             const inputs = document.querySelectorAll(`input[data-qid="${qId}"], select[data-qid="${qId}"]`);
-            let vals = []; 
-            let hasValue = false;
+            let vals = []; let hasValue = false;
             
             inputs.forEach((inp, idx) => {
                 vals.push(inp.value.trim());
@@ -657,9 +696,10 @@
                             const inputs = document.querySelectorAll(`input[data-qid="${qId}"], select[data-qid="${qId}"]`);
                             inputs.forEach((inp, idx) => { if (vals[idx]) inp.value = vals[idx]; });
                             
-                            if (q.exercise_name && q.exercise_name.includes('Exercise 5:')) {
-                                let wList = ans.split('');
-                                wList.forEach(w => {
+                            if (q.exercise_name && (q.exercise_name.includes('Exercise 5') || q.exercise_name.includes('Exercise 9') || q.exercise_name.includes('Exercise 10') || q.exercise_name.includes('Reorder'))) {
+                                let type = q.exercise_name.includes('Exercise 5') ? 'letter' : 'word';
+                                let separator = type === 'letter' ? '' : ' ';
+                                ans.split(separator).forEach(w => {
                                     let wTrim = w.trim();
                                     for (let btn of document.querySelectorAll(`.reorder-btn-${qId}:not(.hidden)`)) {
                                         if (btn.innerText === wTrim) { btn.classList.add('hidden'); break; }
@@ -682,6 +722,9 @@
         }
         window.resetAllProgress = function() { if(confirm("Con có muốn xóa tiến độ và làm lại từ đầu không?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
 
+        // ==========================================
+        // CƠ CHẾ NỘP BÀI DỞ DANG VÀ CHẤM ĐIỂM (KHÓA LỚP 3)
+        // ==========================================
         window.submitLesson = async function() {
             const nameContainer = document.getElementById('name-container');
             const studentNameInput = document.getElementById('student-name');
@@ -696,17 +739,20 @@
                 return;
             } else nameContainer.classList.remove('ring-4', 'ring-red-300', 'bg-red-50');
 
+            const totalQs = exercisesData.length;
             const answeredCount = Object.keys(userAnswers).length;
-            if (answeredCount < exercisesData.length) {
-                warning.innerHTML = `⚠️ Con mới làm <b>${answeredCount}/${exercisesData.length}</b> câu. Cố gắng hoàn thành nốt nhé!`;
-                warning.classList.remove('hidden'); window.scrollTo({ top: 0, behavior: 'smooth' }); return; 
+            
+            if (answeredCount < totalQs) {
+                if(!confirm(`Con mới làm ${answeredCount}/${totalQs} câu. Con có muốn NỘP TẠM để cô xem tiến độ, ngày mai mở ra làm tiếp không?`)) {
+                    return; 
+                }
             }
 
             const btn = document.getElementById('main-submit-btn');
             btn.innerHTML = `<div class="spinner border-t-white w-6 h-6 mr-2"></div> Cô Linda đang chấm điểm...`;
             btn.disabled = true; warning.classList.add('hidden');
 
-            let score = 0; let mistakesList = [];
+            let score = 0; let mistakesCount = 0; let unattemptedCount = 0; let detailedFeedback = [];
             
             exercisesData.forEach(ex => {
                 try {
@@ -715,21 +761,32 @@
                     const feedbackDiv = document.getElementById(`feedback-${ex.id}`);
                     let isCorrect = false; let correctDisplay = ex.correct_answer || "";
 
+                    let userStr = userAnswers[ex.id];
+                    if (userStr === undefined || userStr.trim() === "") {
+                        unattemptedCount++;
+                        qItem.classList.add('opacity-70'); 
+                        return; 
+                    }
+
+                    let userDisplayStr = userStr;
+
                     if (ex.question_type === 'input' || ex.question_type === 'matching') {
                         const inputs = document.querySelectorAll(`input[data-qid="${ex.id}"], select[data-qid="${ex.id}"]`);
                         if (inputs.length > 0) {
                             inputs.forEach(inp => inp.disabled = true); 
-                            const userStr = userAnswers[ex.id] || "";
                             
                             isCorrect = normalizeString(userStr) === normalizeString(ex.correct_answer);
                             
                             inputs.forEach(input => {
                                 if (isCorrect) {
                                     input.classList.add('bg-bamboo-100', 'text-bamboo-700', 'border-bamboo-500');
-                                    input.classList.remove('bg-fae8ff', 'color-c026d3', 'bg-sky-50');
+                                    input.classList.remove('bg-fae8ff', 'color-c026d3', 'bg-white');
                                 } else {
                                     input.classList.add('bg-red-100', 'text-red-700', 'border-red-500', 'line-through');
-                                    input.classList.remove('bg-fae8ff', 'color-c026d3', 'bg-sky-50');
+                                    input.classList.remove('bg-fae8ff', 'color-c026d3', 'bg-white');
+                                    if(input.tagName === 'SELECT' && input.options[input.selectedIndex]) {
+                                        userDisplayStr = input.options[input.selectedIndex].text;
+                                    }
                                 }
                             });
                             const clearBtns = qItem.querySelectorAll('button[onclick^="clearReorder"]');
@@ -739,82 +796,89 @@
                         }
                     } else {
                         let options = ex.options;
-                        const userStr = userAnswers[ex.id];
                         const safeCorrectAns = String(ex.correct_answer || "").trim();
                         
                         isCorrect = (userStr === safeCorrectAns);
                         const correctOpt = options.find(o => String(o.id).trim() === safeCorrectAns);
                         correctDisplay = correctOpt ? correctOpt.text : ex.correct_answer;
+                        
+                        const userOpt = options.find(o => String(o.id).trim() === userStr);
+                        userDisplayStr = userOpt ? userOpt.text : userStr;
 
                         options.forEach(opt => {
                             const optBtn = document.querySelector(`button[data-qid="${ex.id}"][data-optid="${opt.id}"]`);
                             if (optBtn) {
-                                const indicator = optBtn.querySelector('.indicator-circle');
-
+                                optBtn.disabled = true;
                                 if (String(opt.id).trim() === safeCorrectAns) {
                                     optBtn.className = `option-btn w-full text-left p-3 rounded-xl border-2 bg-bamboo-50 border-bamboo-500 text-bamboo-700 font-bold text-base flex items-center gap-3 shadow-sm`;
-                                    if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-bamboo-500 text-white flex items-center justify-center border border-bamboo-500 shrink-0 indicator-circle font-bold text-sm shadow-sm';
-                                    if (!optBtn.innerHTML.includes('✅')) optBtn.innerHTML += ' <span class="ml-auto text-2xl">✅</span>';
                                 } else if (opt.id === userStr && !isCorrect) {
                                     optBtn.className = `option-btn w-full text-left p-3 rounded-xl border-2 bg-red-50 border-red-500 text-red-700 font-bold text-base flex items-center gap-3 shadow-sm opacity-80`;
-                                    if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-red-500 text-white flex items-center justify-center border border-red-500 shrink-0 indicator-circle font-bold text-sm shadow-sm';
-                                    if (!optBtn.innerHTML.includes('❌')) optBtn.innerHTML += ' <span class="ml-auto text-2xl">❌</span>';
                                 }
                             }
                         });
                     }
 
-                    if (feedbackDiv) {
-                        feedbackDiv.classList.remove('hidden');
-                        if (isCorrect) {
-                            score++;
-                            qItem.classList.add('border-2', 'border-bamboo-200', 'bg-bamboo-50');
-                            qItem.classList.remove('border-slate-200', 'bg-white');
-                            feedbackDiv.innerHTML = `<div class="font-extrabold text-bamboo-600 mt-2 flex items-center justify-center bg-white py-2 rounded-xl border border-bamboo-200 shadow-sm text-sm sm:text-base p-2">✨ Giỏi quá! Cô Ms. Linda khen con, đáp án đúng là: <b class="ml-1">${correctDisplay}</b> ✨</div>`;
-                        } else {
-                            mistakesList.push(ex.exercise_name);
-                            qItem.classList.add('border-2', 'border-red-300', 'bg-red-50');
-                            qItem.classList.remove('border-slate-200', 'bg-white');
+                    let exTitle = ex.exercise_name || "Bài tập";
+                    if (isCorrect) {
+                        score++;
+                        qItem.classList.add('border-2', 'border-bamboo-200', 'bg-bamboo-50');
+                        if (feedbackDiv) {
+                            feedbackDiv.classList.remove('hidden');
+                            feedbackDiv.innerHTML = `<div class="font-extrabold text-bamboo-600 mt-2 bg-white py-2 rounded-xl text-center shadow-sm p-2">✨ Chính xác! ✨</div>`;
+                        }
+                    } else {
+                        mistakesCount++;
+                        qItem.classList.add('border-2', 'border-red-300', 'bg-red-50');
+                        
+                        detailedFeedback.push(`<li class="mb-2 pb-2 border-b border-slate-200/50 last:border-0"><span class="font-bold text-sky-700">${exTitle}:</span> Con điền <span class="text-red-500 line-through font-bold">"${userDisplayStr.replace(/\|/g, ' ')}"</span> ➔ Phải là: <span class="text-bamboo-600 font-bold">"${correctDisplay}"</span></li>`);
+                        
+                        if (feedbackDiv) {
+                            feedbackDiv.classList.remove('hidden');
                             feedbackDiv.innerHTML = `
                                 <div class="mt-4 bg-sky-50 border-2 border-sky-300 rounded-xl p-4 flex gap-4 items-start shadow-sm relative overflow-hidden">
                                     <div class="text-5xl animate-bounce-gentle z-10">👩‍🏫</div>
                                     <div class="w-full z-10">
-                                        <h4 class="font-black text-sky-800 text-xl mb-2 border-b border-sky-200 pb-2">HƯỚNG DẪN CHI TIẾT TỪ CÔ MS. LINDA:</h4>
+                                        <h4 class="font-black text-sky-800 text-xl mb-2 border-b border-sky-200 pb-2">Cô Ms. Linda hướng dẫn con:</h4>
                                         <div class="bg-white p-3 rounded-lg font-bold border border-red-200 mb-3 shadow-sm flex flex-wrap items-center gap-2">
                                             <span class="text-red-500 text-2xl">❌</span> 
-                                            <span class="text-slate-700 w-full mb-1">Chưa chính xác rồi, đáp án đúng phải là:</span> 
-                                            <div class="bg-bamboo-100 text-bamboo-700 px-3 py-2 rounded-md border border-bamboo-300 text-lg w-full">${correctDisplay}</div>
+                                            <span class="text-slate-700">Đáp án đúng phải là:</span> 
+                                            <span class="bg-bamboo-100 text-bamboo-700 px-3 py-1 rounded-md border border-bamboo-300 text-lg">${correctDisplay}</span>
                                         </div>
-                                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                                            ${ex.explanation}
+                                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-200 text-sm">
+                                            ${ex.explanation || ''}
                                         </div>
                                     </div>
                                 </div>
                             `;
                         }
                     }
-                } catch (err) { console.error("Lỗi khi chấm câu:", ex.id, err); }
+                } catch (err) { console.error("Lỗi khi chấm:", ex.id, err); }
             });
 
-            const totalQs = exercisesData.length;
-            let uniqueMistakes = Array.from(new Set(mistakesList));
-            let recommendations = "Xuất sắc! Con nắm rất vững kiến thức.";
-            if (uniqueMistakes.length > 0) recommendations = "Cần ôn tập lại lý thuyết ở: " + uniqueMistakes.join(', ') + ".";
+            let progressStatus = unattemptedCount > 0 ? `Đang làm (${answeredCount}/${totalQs})` : 'Đã hoàn thành';
+            let recommendationsHTML = "";
+            
+            if (unattemptedCount > 0) {
+                recommendationsHTML += `<div class="mb-2 text-sky-600 font-bold flex items-center gap-1"><span>⏳</span> Lộ trình: Con còn ${unattemptedCount} câu chưa làm. Nhớ mở app làm tiếp nhé!</div>`;
+            }
+            if (detailedFeedback.length > 0) {
+                recommendationsHTML += `<div class="font-bold text-red-500 mb-1">Các câu làm sai:</div><ul class="list-none m-0 p-0 text-sm">${detailedFeedback.join('')}</ul>`;
+            } else if (unattemptedCount === 0) {
+                recommendationsHTML = `<div class="text-bamboo-600 font-bold flex items-center gap-1"><span>🏆</span> Tuyệt vời! Con đã hoàn thành đúng 100% bài tập.</div>`;
+            }
 
             const urlParams = new URLSearchParams(window.location.search);
             const unitName = urlParams.get('unit') || 'Unit 4: OUR BODIES';
-            const studentId = urlParams.get('student_id') || null;
-            const assignmentId = urlParams.get('assignment_id') || null;
 
+            // KHÓA CỨNG MÃ LỚP 3 VÀO SỔ ĐIỂM
             supabaseClient.from('results').insert([{
                 student_name: studentName,
-                student_id: studentId,
-                assignment_id: assignmentId,
+                book_id: 1, 
                 unit: unitName,
-                exercises_done: 'Đã hoàn thành',
+                exercises_done: progressStatus,
                 correct_count: score,
-                incorrect_count: totalQs - score,
-                recommendations: recommendations
+                incorrect_count: mistakesCount,
+                recommendations: recommendationsHTML
             }]).then(({ error }) => { if (error) console.error("Lỗi liên thông:", error); });
 
             document.getElementById('submit-container').classList.add('hidden');
@@ -824,28 +888,39 @@
             const score10 = ((score / totalQs) * 10).toFixed(1).replace('.0', '');
             document.getElementById('modal-score-10').innerText = score10;
             document.getElementById('modal-correct-score').innerText = score;
-            document.getElementById('modal-incorrect-score').innerText = totalQs - score;
+            document.getElementById('modal-incorrect-score').innerText = mistakesCount;
             
             const ratio = score / totalQs;
             let message = ""; let emoji = "";
             let sticker = document.getElementById('sticker-badge');
             
-            if (ratio >= 0.8) { 
-                message = ratio === 1 ? "Xuất sắc! Điểm tuyệt đối!" : "Rất Giỏi!"; 
-                emoji = "🏆"; 
-                fireConfetti(); 
-                document.getElementById('modal-score-10').className = "text-8xl font-black text-bamboo-600 mb-1"; 
-                sticker.classList.remove('hidden'); 
-            } else if (ratio >= 0.5) { 
-                message = "Khá lắm, cố gắng thêm nhé!"; 
-                emoji = "👍"; 
-                document.getElementById('modal-score-10').className = "text-8xl font-black text-sunny-500 mb-1"; 
-                document.getElementById('modal-title').className = "text-3xl font-extrabold text-sunny-600 mb-2"; 
-            } else { 
-                message = "Cố gắng lên nhé, đừng nản chí!"; 
-                emoji = "💪"; 
-                document.getElementById('modal-score-10').className = "text-8xl font-black text-red-500 mb-1"; 
-                document.getElementById('modal-title').className = "text-3xl font-extrabold text-red-500 mb-2"; 
+            if (unattemptedCount > 0) {
+                message = "Tiến độ đã được lưu lại!"; emoji = "⏳";
+                document.getElementById('modal-score-10').innerText = answeredCount;
+                document.getElementById('modal-score-10').nextElementSibling.innerText = `/${totalQs} CÂU ĐÃ LÀM`;
+                document.getElementById('modal-score-10').className = "text-6xl font-black text-sky-500 mb-1";
+                sticker.classList.add('hidden'); 
+            } else {
+                document.getElementById('modal-score-10').nextElementSibling.innerText = 'ĐIỂM';
+                if (ratio >= 0.8) { 
+                    message = ratio === 1 ? "Xuất sắc! Điểm tuyệt đối!" : "Rất Giỏi!"; 
+                    emoji = "🏆"; 
+                    fireConfetti(); 
+                    document.getElementById('modal-score-10').className = "text-8xl font-black text-bamboo-600 mb-1"; 
+                    sticker.classList.remove('hidden'); 
+                } else if (ratio >= 0.5) { 
+                    message = "Khá lắm, cố gắng thêm nhé!"; 
+                    emoji = "👍"; 
+                    document.getElementById('modal-score-10').className = "text-8xl font-black text-sunny-500 mb-1"; 
+                    document.getElementById('modal-title').className = "text-3xl font-extrabold text-sunny-600 mb-2"; 
+                    sticker.classList.add('hidden');
+                } else { 
+                    message = "Cố gắng lên nhé, đừng nản chí!"; 
+                    emoji = "💪"; 
+                    document.getElementById('modal-score-10').className = "text-8xl font-black text-red-500 mb-1"; 
+                    document.getElementById('modal-title').className = "text-3xl font-extrabold text-red-500 mb-2"; 
+                    sticker.classList.add('hidden');
+                }
             }
 
             document.getElementById('modal-title').innerText = message; document.getElementById('modal-emoji').innerHTML = emoji;
