@@ -274,12 +274,12 @@
         async function fetchExercises() {
             try {
                 const urlParams = new URLSearchParams(window.location.search);
-                const unitName = urlParams.get('unit') || 'Unit 1';
-                const bookId = urlParams.get('book_id');
+const unitName = urlParams.get('unit') || 'Unit 1';
 
-                let query = supabaseClient.from('exercises').select('*').eq('unit', unitName);
-                if (bookId) {
-                    query = query.eq('book_id', bookId);
+// Thay thế đoạn query cũ bằng 1 dòng duy nhất này
+let query = supabaseClient.from('exercises').select('*').eq('unit', unitName).eq('book_id', 1);
+
+const { data, error } = await query.order('id', { ascending: true });
                 }
 
                 const { data, error } = await query.order('id', { ascending: true });
