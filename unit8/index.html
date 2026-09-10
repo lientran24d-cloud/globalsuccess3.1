@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lớp Học Cô Linda - Unit 8</title>
+    <title>Vui học tiếng Anh cùng Ms Linda - Unit 8</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase SDK -->
@@ -49,6 +49,7 @@
         .speaking-card { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px dashed #38bdf8; padding: 1.5rem; border-radius: 1rem; text-align: center; }
         .speaking-btn { transition: all 0.3s ease; }
         .speaking-btn.done { background-color: #22c55e !important; color: white !important; border-color: #16a34a !important; transform: scale(1.02); }
+        textarea.ex-input { border-radius: 12px; padding: 12px; font-weight: bold; font-family: 'Quicksand', sans-serif; resize: vertical; line-height: 1.5; }
     </style>
 </head>
 <body class="text-slate-800 min-h-screen py-8 px-4 sm:px-6 relative">
@@ -61,9 +62,11 @@
         
         <!-- HEADER -->
         <header class="text-center mb-8 relative">
-            <div class="inline-block bg-white px-10 py-5 rounded-full shadow-lg border-4 border-bamboo-400 mb-4 animate-bounce-gentle">
-                <h1 id="main-title" class="text-4xl sm:text-5xl font-extrabold text-bamboo-600 flex items-center justify-center gap-3">
-                    <span>✨</span> Unit 8: MY SCHOOL THINGS <span>🌟</span>
+            <div class="inline-block bg-white px-8 py-5 rounded-3xl shadow-lg border-4 border-bamboo-400 mb-4 animate-bounce-gentle">
+                <h1 id="main-title" class="text-3xl sm:text-4xl font-extrabold text-bamboo-600 flex flex-col items-center justify-center gap-2">
+                    <span>✨ English Grammar ✨</span>
+                    <span class="text-xl sm:text-2xl text-sunny-600">(Học tiếng Anh siêu vui cùng Ms Linda)</span>
+                    <span class="text-2xl sm:text-3xl mt-2 text-sky-600">Unit 8: MY SCHOOL THINGS</span>
                 </h1>
             </div>
             
@@ -85,13 +88,10 @@
             <div id="vocabulary-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 hidden"></div>
             
             <!-- PHONICS CỦA UNIT 8 -->
-            <div class="mt-6 bg-slate-50 border-2 border-slate-200 p-4 rounded-xl">
+            <div id="phonics-section" class="mt-6 bg-slate-50 border-2 border-slate-200 p-4 rounded-xl hidden">
                 <h3 class="font-bold text-slate-700 mb-2 flex items-center gap-2"><span class="text-2xl">🗣️</span> III. NGỮ ÂM (PHONICS)</h3>
                 <p class="italic text-slate-500 mb-2">Pronounce these words correctly.</p>
-                <ul class="space-y-1 font-bold text-lg ml-8">
-                    <li><span class="text-sky-600">oo:</span> book, cook, foot</li>
-                    <li><span class="text-sky-600">a:</span> eraser, pay, face</li>
-                </ul>
+                <ul class="space-y-1 font-bold text-lg ml-8" id="phonics-list"></ul>
             </div>
         </section>
 
@@ -133,7 +133,6 @@
             <h2 class="text-3xl font-extrabold text-bamboo-600 mb-2" id="modal-title">Chúc mừng con!</h2>
             
             <div class="flex flex-col items-center justify-center border-t border-b border-slate-100 py-6 my-4 relative">
-                <!-- Sticker khen thưởng từ Cô Linda -->
                 <div id="sticker-badge" class="absolute -top-6 -right-4 bg-yellow-300 text-yellow-800 font-black px-4 py-2 rounded-full transform rotate-12 shadow-lg border-2 border-white hidden z-10 text-sm">
                     ✨ CÔ LINDA KHEN CON!
                 </div>
@@ -161,31 +160,36 @@
     <audio id="vocab-audio" src=""></audio>
 
     <script>
-        // INIT SUPABASE
         const SUPABASE_URL = 'https://afpttabeioqthytdwduk.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmcHR0YWJlaW9xdGh5dGR3ZHVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMjQ0NzcsImV4cCI6MjA5OTgwMDQ3N30.jlEFCUKQM5rWTM59rJnpvRjfh9Wkcoxt-fKqH__GtVU';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        // UNIT DATA
         const CURRENT_UNIT = 'Unit 8';
-        const STORAGE_KEY = 'linda_progress_unit8_final_v1';
+        const CURRENT_BOOK_ID = 1; 
+        const STORAGE_KEY = 'linda_progress_unit8_final_v3';
         
-        // GLOBAL STATE
         let exercisesData = [];
         let userAnswers = {}; 
         let wordBanksData = {}; 
         let globalAudioObj = null; 
         let wordSearchState = {}; 
 
-        // TỪ ĐIỂN DỊCH TIÊU ĐỀ TIẾNG VIỆT TỔNG QUÁT (FALLBACK)
         function getVietnameseTitle(exName) {
-            if (exName.includes('Exercise 1')) return "Bài 1: Nhìn ảnh và điền chữ cái oo hoặc a còn thiếu.";
-            if (exName.includes('Exercise 2')) return "Bài 2: Điền các từ tìm được ở Bài 1 vào câu.";
-            if (exName.includes('Exercise 3')) return "Bài 3: Chọn từ khác loại.";
-            if (exName.includes('Exercise 4')) return "Bài 4: Nhìn ảnh và viết đúng tên đồ vật.";
-            if (exName.includes('Exercise 6')) return "Bài 6: Đánh dấu ✓ (Đúng) hoặc X (Sai) theo ảnh.";
+            if (exName.includes('Exercise 15')) return "Bài 15: Sắp xếp các từ để tạo thành câu hoàn chỉnh.";
+            if (exName.includes('Exercise 14')) return "Bài 14: Gạch chân lỗi sai trong mỗi câu và viết lại câu đúng.";
+            if (exName.includes('Exercise 13')) return "Bài 13: Nói về những đồ dùng học tập này. Câu 0 và 1 là mẫu.";
+            if (exName.includes('Exercise 12')) return "Bài 12: Khoanh tròn đáp án đúng nhất để hoàn thành câu.";
+            if (exName.includes('Exercise 11')) return "Bài 11: Chọn đáp án đúng nhất để hoàn thành câu.";
+            if (exName.includes('Exercise 10')) return "Bài 10: Đọc và hoàn thành đoạn văn với các từ trong hộp.";
             if (exName.includes('Exercise 9')) return "Bài 9: Sắp xếp các từ để tạo thành câu đúng.";
-            if (exName.includes('Exercise 11')) return "Bài 11: Chọn đáp án đúng nhất.";
+            if (exName.includes('Exercise 8')) return "Bài 8: Nhìn ảnh và đặt câu hỏi cùng câu trả lời. Câu 1 là mẫu.";
+            if (exName.includes('Exercise 7')) return "Bài 7: Viết dạng số nhiều của các danh từ sau.";
+            if (exName.includes('Exercise 6')) return "Bài 6: Nhìn ảnh và đánh dấu ✓ nếu đúng hoặc viết X nếu sai.";
+            if (exName.includes('Exercise 5')) return "Bài 5: Hoàn thành đoạn hội thoại với các cụm từ trong hộp gợi ý.";
+            if (exName.includes('Exercise 4')) return "Bài 4: Nhìn ảnh và viết từ trong bảng dưới mỗi bức ảnh.";
+            if (exName.includes('Exercise 3')) return "Bài 3: Chọn từ khác loại.";
+            if (exName.includes('Exercise 2')) return "Bài 2: Hoàn thành các câu với các từ tìm được ở Bài 1.";
+            if (exName.includes('Exercise 1')) return "Bài 1: Nhìn ảnh và điền chữ cái oo hoặc a còn thiếu.";
             return "";
         }
 
@@ -194,11 +198,7 @@
         // ==========================================
         async function fetchVocabulary() {
             try {
-                const urlParams = new URLSearchParams(window.location.search);
-                const bookId = urlParams.get('book_id');
-                
-                let query = supabaseClient.from('vocabulary').select('*').eq('unit', CURRENT_UNIT);
-                if (bookId) query = query.eq('book_id', bookId);
+                let query = supabaseClient.from('vocabulary').select('*').eq('unit', CURRENT_UNIT).eq('book_id', CURRENT_BOOK_ID);
 
                 const { data, error } = await query.order('display_order', { ascending: true });
                 if (error) throw error;
@@ -208,7 +208,17 @@
                 container.classList.remove('hidden');
 
                 if (data && data.length > 0) {
+                    let uniqueVocab = [];
+                    let seenWords = new Set();
                     data.forEach(vocab => {
+                        let key = (vocab.word || "").trim().toLowerCase();
+                        if (!seenWords.has(key)) {
+                            seenWords.add(key);
+                            uniqueVocab.push(vocab);
+                        }
+                    });
+                    
+                    uniqueVocab.forEach(vocab => {
                         let audioButton = vocab.audio_url ? `<button onclick="playVocabAudio('${vocab.audio_url}')" class="audio-btn absolute top-2 right-2 bg-sky-200 hover:bg-sky-300 text-sky-700 rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-sm border border-sky-300 z-10" title="Bấm nghe phát âm">🔊</button>` : '';
                         let imgHtml = vocab.image_url ? `<img src="${vocab.image_url}" class="w-full h-32 object-contain mb-3 rounded-lg border border-sky-100 shadow-sm">` : '';
                         
@@ -232,7 +242,33 @@
             }
         }
 
+        async function fetchPhonics() {
+            try {
+                let query = supabaseClient.from('phonics').select('*').eq('unit', CURRENT_UNIT).eq('book_id', CURRENT_BOOK_ID);
+                const { data, error } = await query.order('display_order', { ascending: true });
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    const section = document.getElementById('phonics-section');
+                    const list = document.getElementById('phonics-list');
+                    if(section) section.classList.remove('hidden');
+                    if(list) list.innerHTML = '';
+                    
+                    let seenSounds = new Set();
+                    data.forEach(item => {
+                        let key = (item.sound || "").trim().toLowerCase() + "|||" + (item.example_words || "").trim().toLowerCase();
+                        if (!seenSounds.has(key)) {
+                            seenSounds.add(key);
+                            let audioBtn = item.audio_url ? `<button onclick="playVocabAudio('${item.audio_url}')" class="audio-btn inline-flex items-center justify-center w-8 h-8 bg-sky-200 text-sky-700 rounded-full ml-3 hover:bg-sky-300 border border-sky-300 shadow-sm" title="Bấm nghe phát âm">🔊</button>` : '';
+                            if (list) list.insertAdjacentHTML('beforeend', `<li class="flex items-center"><span class="text-sky-600 mr-2 text-xl">${item.sound}:</span> <span class="font-bold text-slate-700">${item.example_words}</span> ${audioBtn}</li>`);
+                        }
+                    });
+                }
+            } catch(e) { console.error("Phonics error:", e); }
+        }
+
         window.playVocabAudio = function(url) { 
+            if (!url) return;
             if (globalAudioObj) {
                 globalAudioObj.pause();
                 globalAudioObj.currentTime = 0;
@@ -246,12 +282,7 @@
         // ==========================================
         async function fetchGrammar() {
             try {
-                const urlParams = new URLSearchParams(window.location.search);
-                const bookId = urlParams.get('book_id');
-                
-                let query = supabaseClient.from('grammar').select('*').eq('unit', CURRENT_UNIT);
-                if (bookId) query = query.eq('book_id', bookId);
-
+                let query = supabaseClient.from('grammar').select('*').eq('unit', CURRENT_UNIT).eq('book_id', CURRENT_BOOK_ID);
                 const { data, error } = await query.order('display_order', { ascending: true });
                 if (error) throw error;
 
@@ -260,23 +291,32 @@
                 container.classList.remove('hidden');
 
                 if (data && data.length > 0) {
-                    data.forEach((gram, idx) => {
-                        let icon = idx === 0 ? '❓' : (idx === 1 ? '🎬' : '📝');
-                        let examplesHtml = '';
-                        if (gram.example) {
-                            examplesHtml = `<div class="bg-white p-4 rounded-xl border border-magic-100 space-y-2 text-base mt-4">${gram.example.replace(/\n/g, '<br/>')}</div>`;
-                        }
-                        
-                        container.insertAdjacentHTML('beforeend', `
-                            <div class="bg-magic-50 p-5 rounded-2xl border-2 border-magic-200">
-                                <h3 class="font-bold text-magic-700 text-xl mb-3 flex items-center gap-2"><span>${icon}</span> ${idx + 1}. ${gram.grammar_title}</h3>
-                                <div class="text-base sm:text-lg pl-8 leading-relaxed text-slate-700">
-                                    ${gram.grammar_content.replace(/\\n/g, '<br/>').replace(/\n/g, '<br/>')}
+                    let seenGrammar = new Set();
+                    let counter = 1;
+                    
+                    data.forEach((gram) => {
+                        let key = (gram.grammar_title || "").trim().toLowerCase();
+                        if (!seenGrammar.has(key)) {
+                            seenGrammar.add(key);
+                            
+                            let icon = counter === 1 ? '❓' : (counter === 2 ? '🎬' : '📝');
+                            let examplesHtml = '';
+                            if (gram.example) {
+                                examplesHtml = `<div class="bg-white p-4 rounded-xl border border-magic-100 space-y-2 text-base mt-4">${gram.example.replace(/\n/g, '<br/>')}</div>`;
+                            }
+                            
+                            container.insertAdjacentHTML('beforeend', `
+                                <div class="bg-magic-50 p-5 rounded-2xl border-2 border-magic-200">
+                                    <h3 class="font-bold text-magic-700 text-xl mb-3 flex items-center gap-2"><span>${icon}</span> ${counter}. ${gram.grammar_title}</h3>
+                                    <div class="text-base sm:text-lg pl-8 leading-relaxed text-slate-700">
+                                        ${gram.grammar_content.replace(/\n/g, '<br/>')}
+                                    </div>
+                                    ${examplesHtml}
+                                    ${gram.explanation ? `<div class="mt-3 text-sm italic text-magic-600 pl-8">${gram.explanation}</div>` : ''}
                                 </div>
-                                ${examplesHtml}
-                                ${gram.explanation ? `<div class="mt-3 text-sm italic text-magic-600 pl-8">${gram.explanation}</div>` : ''}
-                            </div>
-                        `);
+                            `);
+                            counter++;
+                        }
                     });
                 } else {
                     container.innerHTML = `<div class="text-center text-slate-500 font-bold">Chưa có dữ liệu ngữ pháp cho Unit này.</div>`;
@@ -296,7 +336,9 @@
             let dbExp = String(qObj.explanation || "").trim();
 
             let fullSentence = qText;
-            if (qText.includes('___') || qText.includes('...')) {
+            if (qObj.component_name === 'WordSearchComponent') {
+                fullSentence = `<b class="text-bamboo-700">${ans.replace(/,/g, ', ')}</b>`;
+            } else if (qText.includes('___') || qText.includes('...')) {
                 let parts = ans.split('|'); let i = 0;
                 fullSentence = qText.replace(/(_{2,}|\.{2,})/g, () => {
                     let val = parts[i++] || ans;
@@ -323,41 +365,171 @@
         }
 
         // ==========================================
-        // 4. DYNAMIC FETCH EXERCISES
+        // COMPONENT WORD SEARCH PULL
+        // ==========================================
+        function renderWordSearch(q) {
+            let grid = [];
+            let words = [];
+            try {
+                if (Array.isArray(q.options) && q.options.length > 0) {
+                    grid = q.options;
+                } else if (typeof q.options === 'string' && q.options.trim() !== '') {
+                    let parsed = JSON.parse(q.options);
+                    if (Array.isArray(parsed)) grid = parsed;
+                    else if (parsed.grid) { grid = parsed.grid; words = parsed.words || []; }
+                } else if (q.question) {
+                    let parsed = JSON.parse(q.question);
+                    if (parsed.grid) { grid = parsed.grid; words = parsed.words || []; }
+                }
+            } catch(e) { console.error("Lỗi parse Word Search", e); }
+            
+            if (!grid || !grid.length) return `<div class="text-red-500 font-bold p-4 bg-red-50 rounded">⚠️ Lỗi: Chưa có cấu hình bảng chữ cái trong dữ liệu (options).</div>`;
+            if (q.correct_answer && (!words || words.length === 0)) words = q.correct_answer.split(',').map(w => w.trim().toUpperCase()).filter(w => w);
+            
+            wordSearchState[q.id] = { grid, words, found: [], firstCell: null };
+
+            let gridHtml = `<div class="w-full overflow-x-auto pb-4"><div class="word-search-grid grid gap-1 sm:gap-2 mx-auto w-max bg-white p-2 sm:p-4 rounded-xl border-2 border-slate-200 select-none shadow-sm">`;
+            for (let r = 0; r < grid.length; r++) {
+                gridHtml += `<div class="flex gap-1 sm:gap-2 justify-center">`;
+                for (let c = 0; c < grid[r].length; c++) {
+                    let char = String(grid[r][c] || '').toUpperCase();
+                    gridHtml += `<div id="ws-${q.id}-${r}-${c}" class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-slate-100 rounded-md cursor-pointer font-bold text-slate-700 text-lg sm:text-xl hover:bg-sky-200 transition" onclick="handleWSCellClick('${q.id}', ${r}, ${c})">${char}</div>`;
+                }
+                gridHtml += `</div>`;
+            }
+            gridHtml += `</div></div>`;
+
+            let wordsHtml = `<div class="flex flex-wrap gap-2 mt-2 justify-center" id="ws-words-${q.id}">`;
+            words.forEach(w => {
+                wordsHtml += `<span id="ws-word-${q.id}-${w}" class="px-4 py-2 bg-slate-100 text-slate-500 rounded-full font-bold text-sm sm:text-base border border-slate-200 transition shadow-sm">${w.replace(/-/g, ' ')}</span>`;
+            });
+            wordsHtml += `</div>`;
+            let hiddenInput = `<input type="hidden" id="input-ex-${q.id}-0" data-qid="${q.id}" value="">`;
+
+            return `<div class="w-full text-center mb-2 font-bold text-sky-600 italic text-sm">💡 Bấm vào chữ cái đầu tiên và chữ cái cuối cùng để chọn từ nhé!</div>` + gridHtml + wordsHtml + hiddenInput;
+        }
+
+        window.handleWSCellClick = function(qId, r, c) {
+            let state = wordSearchState[qId];
+            if (!state) return;
+            
+            if (!state.firstCell) {
+                state.firstCell = {r, c};
+                document.getElementById(`ws-${qId}-${r}-${c}`).classList.add('bg-sky-500', 'text-white', 'ring-2', 'ring-sky-300', 'shadow-md');
+                document.getElementById(`ws-${qId}-${r}-${c}`).classList.remove('bg-slate-100', 'text-slate-700');
+            } else {
+                let r1 = state.firstCell.r, c1 = state.firstCell.c;
+                let r2 = r, c2 = c;
+                state.firstCell = null; 
+                
+                let firstEl = document.getElementById(`ws-${qId}-${r1}-${c1}`);
+                if (!firstEl.classList.contains('bg-bamboo-500')) {
+                    firstEl.classList.remove('bg-sky-500', 'text-white', 'ring-2', 'ring-sky-300', 'shadow-md');
+                    firstEl.classList.add('bg-slate-100', 'text-slate-700');
+                }
+
+                let dr = Math.sign(r2 - r1);
+                let dc = Math.sign(c2 - c1);
+                
+                if (dr !== 0 && dc !== 0 && Math.abs(r2 - r1) !== Math.abs(c2 - c1)) return; 
+
+                let selectedWord = "";
+                let cells = [];
+                let length = Math.max(Math.abs(r2 - r1), Math.abs(c2 - c1)) + 1;
+                
+                for (let i = 0; i < length; i++) {
+                    let cr = r1 + i * dr;
+                    let cc = c1 + i * dc;
+                    cells.push({r: cr, c: cc});
+                    selectedWord += state.grid[cr][cc];
+                }
+
+                let cleanSelected = selectedWord.replace(/[^A-Z]/g, '');
+                let cleanSelectedRev = selectedWord.split('').reverse().join('').replace(/[^A-Z]/g, '');
+
+                let foundWord = state.words.find(w => {
+                    let cleanW = w.replace(/[^A-Z]/g, '');
+                    return cleanW === cleanSelected || cleanW === cleanSelectedRev;
+                });
+
+                if (foundWord && !state.found.includes(foundWord)) {
+                    state.found.push(foundWord);
+                    cells.forEach(cell => {
+                        let el = document.getElementById(`ws-${qId}-${cell.r}-${cell.c}`);
+                        el.classList.remove('bg-slate-100', 'text-slate-700', 'bg-sky-500', 'ring-2', 'ring-sky-300');
+                        el.classList.add('bg-bamboo-500', 'text-white', 'shadow-sm', 'font-black');
+                    });
+                    let wordBadge = document.getElementById(`ws-word-${qId}-${foundWord}`);
+                    if(wordBadge) {
+                        wordBadge.classList.remove('bg-slate-100', 'text-slate-500');
+                        wordBadge.classList.add('bg-bamboo-100', 'text-bamboo-700', 'border-bamboo-400', 'line-through');
+                    }
+                    document.getElementById(`input-ex-${qId}-0`).value = state.found.join(',');
+                    handleMultiInput(qId);
+                    if(state.found.length === state.words.length) fireConfetti();
+                }
+            }
+        }
+
+        window.handleSpeakingDone = function(qId, btn) {
+            const inputHidden = document.getElementById(`input-ex-${qId}-0`);
+            if (inputHidden) inputHidden.value = 'DONE';
+            btn.innerText = 'Đã luyện tập ✅';
+            btn.classList.add('done');
+            userAnswers[qId] = 'DONE';
+            updateAnswerCount();
+            saveProgress();
+        };
+
+        // ==========================================
+        // 4. DYNAMIC FETCH EXERCISES (THÊM BỘ LỌC KHỬ LẶP)
         // ==========================================
         async function fetchExercises() {
             try {
-                const urlParams = new URLSearchParams(window.location.search);
-                const bookId = urlParams.get('book_id');
-                
-                let query = supabaseClient.from('exercises').select('*').eq('unit', CURRENT_UNIT);
-                if (bookId) query = query.eq('book_id', bookId);
-
+                let query = supabaseClient.from('exercises').select('*').eq('unit', CURRENT_UNIT).eq('book_id', CURRENT_BOOK_ID);
                 const { data, error } = await query.order('display_order', { ascending: true });
                 if (error) throw error;
                 if (data.length === 0) throw new Error("Chưa có dữ liệu bài tập cho Unit này.");
 
+                // KHỬ TRÙNG LẶP DỮ LIỆU TỪ SUPABASE
+                let uniqueQuestions = [];
+                let seenQ = new Set();
+
                 data.forEach(q => {
-                    if (q.question) {
+                    if (q.question && typeof q.question === 'string' && q.component_name !== 'WordSearchComponent') {
                         q.question = q.question.replace(/\bhte\b/gi, 'the').replace(/\bform\b/gi, 'from');
                         q.question = q.question.replace(/\[Hình.*?\]/gi, '').replace(/\(Hình.*?\)/gi, '');
                     }
+                    if (q.correct_answer) q.correct_answer = String(q.correct_answer).trim();
 
-                    if (q.correct_answer) {
-                        q.correct_answer = String(q.correct_answer).trim();
+                    let cleanQ = "";
+                    if (typeof q.question === 'string') {
+                        cleanQ = q.question.replace(/<[^>]*>?/gm, '').replace(/\s+/g, '').toLowerCase();
+                    } else {
+                        try { cleanQ = JSON.stringify(q.question); } catch(e) { cleanQ = "unknown_format"; }
                     }
+                    let key = (q.exercise_name || "").trim() + "|||" + cleanQ;
+                    
+                    if (!seenQ.has(key)) {
+                        seenQ.add(key);
+                        if (typeof q.options === 'string' && q.options.trim() !== '') {
+                            try { q.options = JSON.parse(q.options); } catch(e){ q.options = []; }
+                        }
+                        uniqueQuestions.push(q);
+                    }
+                });
 
-                    if (q.question_type === 'multiple_choice' || q.question_type === 'true_false' || q.question_type === 'matching' || q.component_name === 'MatchingText' || q.component_name === 'MatchingImage' || q.component_name === 'DropdownImage' || q.component_name === 'ImageDropdown' || q.component_name === 'WordSearchComponent') {
+                uniqueQuestions.forEach(q => {
+                    if (q.question_type === 'multiple_choice' || q.question_type === 'true_false' || q.question_type === 'matching' || q.component_name === 'MatchingText' || q.component_name === 'MatchingImage') {
                         if (typeof q.options === 'string') {
                             try { q.options = JSON.parse(q.options); } catch(e){}
                         }
                     }
-
                     q.explanation = buildDynamicExplanation(q);
                 });
 
-                exercisesData = data;
-                renderExercisesGrouped(data);
+                exercisesData = uniqueQuestions;
+                renderExercisesGrouped(uniqueQuestions);
                 loadProgress();
             } catch (error) { 
                 document.getElementById('loading').innerHTML = `<div class="text-red-500 font-bold text-xl text-center">Lỗi: ${error.message}</div>`; 
@@ -383,8 +555,8 @@
 
             for (const [exName, questions] of Object.entries(groupedData)) {
                 let firstQ = questions[0];
-                let engTitle = firstQ.english_title || firstQ.exercise_name || exName;
-                let vieTitle = firstQ.vietnamese_title || getVietnameseTitle(engTitle); 
+                let engTitle = firstQ.exercise_name || exName;
+                let vieTitle = getVietnameseTitle(engTitle); 
 
                 const exBlock = document.createElement('div');
                 exBlock.className = 'bg-slate-50 border-2 border-slate-200 p-5 rounded-2xl shadow-sm relative mb-8';
@@ -398,21 +570,149 @@
                     </h3>
                 `;
 
-                // XỬ LÝ ĐOẠN VĂN ĐỌC HIỂU / HƯỚNG DẪN TỪ SUPABASE
-                if (firstQ.instruction || firstQ.dialogue) {
-                    let exampleContent = firstQ.instruction || firstQ.dialogue;
-                    if (exampleContent) {
-                        exBlock.insertAdjacentHTML('beforeend', `
-                            <div class="bg-sunny-50 border-2 border-sunny-200 p-4 rounded-xl mb-6 shadow-sm">
-                                <div class="font-extrabold text-sunny-700 mb-2 flex items-center gap-2"><span>💡</span> VÍ DỤ MINH HỌA (EXAMPLE):</div>
-                                <div class="flex flex-col gap-2 bg-white p-4 rounded-lg border border-sunny-100">
-                                    <div class="text-lg font-bold text-slate-800 leading-relaxed">
-                                        ${exampleContent}
+                // ĐOẠN VĂN CHỈ XUẤT HIỆN Ở BÀI 10, KHÔNG HIỆN Ở BÀI 11
+                if (engTitle.includes('Exercise 10')) {
+                    let reading10 = "This is my (1) _________. It is big. This is my school bag. It is (2) _________. That is my pencil sharpener. It is small. (3) _________ are my pencils. (4) _________ are short. Those are my books and (5) _________. They are new.";
+                    let box10 = "These | They | classroom | notebooks | new";
+                    let cuesArr = box10.split('|').map(w => w.trim());
+                    wordBanksData[exName] = cuesArr;
+                    
+                    exBlock.insertAdjacentHTML('beforeend', `
+                        <div class="bg-white border-2 border-magic-200 p-4 rounded-xl mb-6 shadow-sm sticky top-4 z-10">
+                            <div class="font-bold text-magic-600 text-sm mb-2">🏷️ CÁC TỪ TRONG HỘP (BOX CUES):</div>
+                            <div class="flex flex-wrap gap-2 word-bank-words" data-exname="${exName}">
+                                ${cuesArr.map(w => `<button type="button" data-word="${w.replace(/"/g, '&quot;')}" onclick="fillWordBank('${exName}', this.getAttribute('data-word'))" class="bg-magic-50 text-magic-700 hover:bg-magic-200 hover:scale-105 transition px-4 py-2 rounded-lg border border-magic-300 font-bold shadow-sm">${w}</button>`).join('')}
+                            </div>
+                        </div>
+                        <div class="bg-sky-50 border-2 border-sky-200 p-4 rounded-xl mb-6 shadow-sm">
+                            <div class="font-extrabold text-sky-700 mb-2 flex items-center gap-2"><span>📖</span> ĐOẠN VĂN (READING TEXT):</div>
+                            <div class="text-lg font-medium text-slate-800 leading-relaxed bg-white p-4 rounded-lg border border-sky-100 shadow-inner">
+                                ${reading10}
+                            </div>
+                        </div>
+                    `);
+                } else {
+                    let referenceFrom = firstQ.reference_from; 
+                    if (!referenceFrom && firstQ.instruction) {
+                        let match = firstQ.instruction.match(/Exercise (\d+)/i);
+                        if (match) referenceFrom = 'Exercise ' + match[1];
+                    }
+                    if (referenceFrom && !engTitle.includes('Exercise 11')) {
+                        let refEx = data.find(q => (q.english_title || q.exercise_name || "").includes(referenceFrom));
+                        if (refEx && typeof refEx.question === 'string') {
+                            let readingText = refEx.question.split('<br><br>')[0];
+                            exBlock.insertAdjacentHTML('beforeend', `
+                                <div class="bg-sky-50 border-2 border-sky-200 p-4 rounded-xl mb-6 shadow-sm">
+                                    <div class="font-extrabold text-sky-700 mb-2 flex items-center gap-2"><span>📖</span> ĐOẠN VĂN THAM KHẢO (TỪ ${referenceFrom.toUpperCase()}):</div>
+                                    <div class="text-lg font-medium text-slate-800 leading-relaxed bg-white p-4 rounded-lg border border-sky-100 shadow-inner">
+                                        ${readingText}
                                     </div>
                                 </div>
-                            </div>
-                        `);
+                            `);
+                        }
                     }
+                }
+
+                // CÂU HỘI THOẠI BÀI 5 TỪ HÌNH ẢNH (BỔ SUNG VÀ XÓA CÂU GÕ CỨNG)
+                if (engTitle.includes('Exercise 5')) {
+                    let ex5Cues = "A. Is it new | B. here are my school things | C. It's long | D. I also like it | E. Do you have a pencil case?";
+                    let cuesArr = ex5Cues.split('|').map(w => w.trim());
+                    wordBanksData[exName] = cuesArr;
+                    
+                    exBlock.insertAdjacentHTML('beforeend', `
+                        <div class="bg-white border-2 border-magic-200 p-4 rounded-xl mb-6 shadow-sm sticky top-4 z-10">
+                            <div class="font-bold text-magic-600 text-sm mb-2">🏷️ CÁC CÂU TRONG HỘP (BOX CUES):</div>
+                            <div class="flex flex-wrap gap-2 word-bank-words" data-exname="${exName}">
+                                ${cuesArr.map(w => `<button type="button" data-word="${w.replace(/"/g, '&quot;')}" onclick="fillWordBank('${exName}', this.getAttribute('data-word'))" class="bg-magic-50 text-magic-700 hover:bg-magic-200 hover:scale-105 transition px-3 py-2 rounded-lg border border-magic-300 font-bold shadow-sm">${w}</button>`).join('')}
+                            </div>
+                        </div>
+                    `);
+                }
+
+                // CÂU MẪU BÀI 8
+                if (engTitle.includes('Exercise 8')) {
+                    let exampleContent = `
+                        <div class="flex flex-col gap-2 w-full text-left">
+                            <div class="text-lg font-bold text-slate-800 border-l-4 border-bamboo-400 pl-4 py-1">
+                                <div class="text-sky-600">1. (Hình quyển vở)</div>
+                                <div class="text-slate-700 mt-1">Do you have a notebook?</div>
+                                <div class="text-bamboo-600 font-medium">Yes, I do.</div>
+                            </div>
+                        </div>
+                    `;
+                    exBlock.insertAdjacentHTML('beforeend', `
+                        <div class="bg-sunny-50 border-2 border-sunny-200 p-4 rounded-xl mb-6 shadow-sm">
+                            <div class="font-extrabold text-sunny-700 mb-2 flex items-center gap-2"><span>💡</span> VÍ DỤ MINH HỌA (EXAMPLE):</div>
+                            <div class="flex flex-col gap-2 bg-white p-4 rounded-lg border border-sunny-100">
+                                <div class="text-lg font-bold text-slate-800 leading-relaxed">
+                                    ${exampleContent}
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                }
+                
+                // BẢNG VÀ CÂU MẪU BÀI 13
+                if (engTitle.includes('Exercise 13')) {
+                    let ex13Table = `
+                        <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-slate-200 mb-6">
+                            <table class="w-full text-left border-collapse min-w-[500px]">
+                                <thead>
+                                    <tr class="bg-sky-100 text-sky-800 text-lg">
+                                        <th class="p-3 border-b-2 border-sky-200 text-center">No.</th>
+                                        <th class="p-3 border-b-2 border-sky-200">Name</th>
+                                        <th class="p-3 border-b-2 border-sky-200">School things</th>
+                                        <th class="p-3 border-b-2 border-sky-200">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-slate-700 font-bold text-lg">
+                                    <tr class="border-b border-slate-100"><td class="p-3 text-center">0.</td><td class="p-3">Lan</td><td class="p-3">school bag</td><td class="p-3">old</td></tr>
+                                    <tr class="border-b border-slate-100 bg-slate-50"><td class="p-3 text-center">1.</td><td class="p-3">Hoa</td><td class="p-3">books</td><td class="p-3">new</td></tr>
+                                    <tr class="border-b border-slate-100"><td class="p-3 text-center">2.</td><td class="p-3">Tom</td><td class="p-3">notebook</td><td class="p-3">good</td></tr>
+                                    <tr class="border-b border-slate-100 bg-slate-50"><td class="p-3 text-center">3.</td><td class="p-3">Linh</td><td class="p-3">pen</td><td class="p-3">expensive</td></tr>
+                                    <tr class="border-b border-slate-100"><td class="p-3 text-center">4.</td><td class="p-3">Linda</td><td class="p-3">crayon</td><td class="p-3">cheap</td></tr>
+                                    <tr class="border-b border-slate-100 bg-slate-50"><td class="p-3 text-center">5.</td><td class="p-3">Phong</td><td class="p-3">rulers</td><td class="p-3">red</td></tr>
+                                    <tr class="border-b border-slate-100"><td class="p-3 text-center">6.</td><td class="p-3">Trang</td><td class="p-3">rubber</td><td class="p-3">white</td></tr>
+                                    <tr class="border-b border-slate-100 bg-slate-50"><td class="p-3 text-center">7.</td><td class="p-3">Nhung</td><td class="p-3">pencils</td><td class="p-3">small</td></tr>
+                                    <tr><td class="p-3 text-center">8.</td><td class="p-3">Hung</td><td class="p-3">calculator</td><td class="p-3">big</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    let example13Content = `
+                        <div class="flex flex-col gap-2 w-full text-left">
+                            <div class="text-lg font-bold text-slate-800 border-l-4 border-bamboo-400 pl-4 py-1">
+                                <div class="text-sky-600">0. Lan - school bag - old</div>
+                                <div class="text-slate-600 font-medium mb-2">➔ This is Lan. She has a school bag. It is old.</div>
+                                <div class="text-sky-600">1. Hoa - books - new</div>
+                                <div class="text-slate-600 font-medium">➔ This is Hoa. She has some books. They are new.</div>
+                            </div>
+                        </div>
+                    `;
+                    exBlock.insertAdjacentHTML('beforeend', ex13Table + `
+                        <div class="bg-sunny-50 border-2 border-sunny-200 p-4 rounded-xl mb-6 shadow-sm">
+                            <div class="font-extrabold text-sunny-700 mb-2 flex items-center gap-2"><span>💡</span> VÍ DỤ MINH HỌA (EXAMPLE):</div>
+                            <div class="flex flex-col gap-2 bg-white p-4 rounded-lg border border-sunny-100">
+                                <div class="text-lg font-bold text-slate-800 leading-relaxed">
+                                    ${example13Content}
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                }
+
+                let exampleContent = firstQ.example || firstQ.dialogue || '';
+                if (exampleContent && !engTitle.includes('Exercise 5') && !engTitle.includes('Exercise 13')) {
+                    exBlock.insertAdjacentHTML('beforeend', `
+                        <div class="bg-sunny-50 border-2 border-sunny-200 p-4 rounded-xl mb-6 shadow-sm">
+                            <div class="font-extrabold text-sunny-700 mb-2 flex items-center gap-2"><span>💡</span> VÍ DỤ MINH HỌA (EXAMPLE):</div>
+                            <div class="flex flex-col gap-2 bg-white p-4 rounded-lg border border-sunny-100">
+                                <div class="text-lg font-bold text-slate-800 leading-relaxed">
+                                    ${exampleContent}
+                                </div>
+                            </div>
+                        </div>
+                    `);
                 }
 
                 // COMPONENT WORD BANK
@@ -434,167 +734,123 @@
                     exBlock.insertAdjacentHTML('beforeend', wbHtml);
                 }
 
-                // COMPONENT IMAGE DROPDOWN
-                let isImageDropdown = questions.some(q => q.component_name === 'DropdownImage' || q.component_name === 'ImageDropdown');
-                
-                if (isImageDropdown) {
-                    const itemsContainer = document.createElement('div');
-                    itemsContainer.className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full mt-4';
+                // COMPONENT MATCHING
+                if (questions.some(q => q.question_type === 'matching' || q.component_name === 'MatchingImage' || q.component_name === 'MatchingText')) {
+                    const matchContainer = document.createElement('div');
+                    matchContainer.className = 'grid grid-cols-1 md:grid-cols-2 gap-8 w-full mt-4';
                     
-                    let optionsList = [];
-                    let qWithOptions = questions.find(q => q.options && q.options.length > 0);
-                    if (qWithOptions) {
-                        optionsList = Array.isArray(qWithOptions.options) ? qWithOptions.options : [];
+                    let imagePool = [];
+                    let textPool = [];
+                    let isImageMatch = false;
+
+                    questions.forEach(q => {
+                        let parsedOptions = Array.isArray(q.options) ? q.options : [];
+                        parsedOptions.forEach(opt => {
+                            let url = opt.image_url || opt.url;
+                            if (!url && typeof opt.text === 'string' && opt.text.includes('http')) {
+                                let match = opt.text.match(/https?:\/\/[^\s"]+/);
+                                if (match) url = match[0];
+                            }
+                            if (url && typeof url === 'string') {
+                                isImageMatch = true;
+                                if(!imagePool.find(img => img.id === opt.id)) imagePool.push({ id: opt.id, url: url });
+                            } else if (opt.text && !textPool.find(t => t.id === opt.id)) {
+                                textPool.push({ id: opt.id, text: opt.text });
+                            }
+                        });
+
+                        let directUrl = q.image_url || q.image;
+                        if (directUrl && q.correct_answer && !imagePool.find(img => img.id === q.correct_answer)) {
+                            isImageMatch = true;
+                            imagePool.push({ id: q.correct_answer, url: directUrl });
+                        }
+                    });
+
+                    if (isImageMatch) {
+                        imagePool = imagePool.filter(img => img.url && typeof img.url === 'string' && img.url.startsWith('http'));
+                        imagePool.sort((a, b) => String(a.id).localeCompare(String(b.id)));
+                    } else {
+                        textPool.sort((a, b) => String(a.id).localeCompare(String(b.id)));
+                    }
+
+                    const leftCol = document.createElement('div');
+                    leftCol.className = 'space-y-4 flex flex-col justify-center';
+                    
+                    let selectOptionsHtml = '<option value="">Chọn</option>';
+                    if (isImageMatch) {
+                        selectOptionsHtml += imagePool.map(img => `<option value="${img.id}">${img.id}</option>`).join('');
+                    } else {
+                        selectOptionsHtml += textPool.map(t => `<option value="${t.id}">${t.id}</option>`).join('');
                     }
 
                     questions.forEach((q, index) => {
                         const qItem = document.createElement('div');
-                        qItem.className = 'bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center text-center transition-all duration-300';
+                        qItem.className = 'bg-white p-4 rounded-xl border border-slate-200 shadow-sm transition-all duration-300 w-full flex flex-col gap-2';
                         qItem.id = `q-item-${q.id}`;
-                        
-                        let correctOpt = optionsList.find(o => String(o.id).trim() === String(q.correct_answer).trim());
-                        if (correctOpt) {
-                            q.display_correct_answer = correctOpt.text;
-                            if (q.explanation) {
-                                q.explanation = q.explanation.replace(new RegExp(`\\[\\s*${q.correct_answer}\\s*\\]`, 'g'), `[ ${correctOpt.text} ]`);
-                                q.explanation = q.explanation.replace(new RegExp(`"<b>${q.correct_answer}</b>"`, 'g'), `"<b>${correctOpt.text}</b>"`);
-                            }
-                        }
-
-                        let imageHtml = q.image_url ? `<img src="${q.image_url}" class="h-40 w-full object-contain rounded-lg shadow-sm border border-slate-100 mb-4">` : '';
-                        
-                        let selectOptionsHtml = '<option value="">Chọn từ</option>' + optionsList.map(opt => `<option value="${opt.id}">${opt.text}</option>`).join('');
-
+                        let qText = q.question.replace(/^\d+\.\s*/, '');
                         qItem.innerHTML = `
-                            <div class="font-bold text-slate-500 mb-3 w-full text-left text-lg border-b border-slate-100 pb-2">Ảnh số ${index + 1}</div>
-                            ${imageHtml}
-                            <select id="input-ex-${q.id}-0" data-qid="${q.id}" class="ex-input w-full text-center font-bold text-lg bg-sky-50 text-sky-700 border-sky-400 focus:bg-sky-100 cursor-pointer outline-none appearance-none shadow-sm" onchange="handleMultiInput('${q.id}')">
-                                ${selectOptionsHtml}
-                            </select>
-                            <div id="feedback-${q.id}" class="mt-4 hidden w-full text-left text-sm col-span-full"></div>
+                            <div class="flex items-center justify-between gap-3 w-full">
+                                <div class="flex items-center gap-3 w-full">
+                                    <div class="font-bold text-white bg-slate-400 w-8 h-8 rounded-full flex items-center justify-center shrink-0">${index + 1}</div>
+                                    <div class="text-lg font-bold text-slate-800 break-words">${qText}</div>
+                                </div>
+                                <div class="flex flex-col items-end shrink-0">
+                                    <select id="input-ex-${q.id}-0" data-qid="${q.id}" class="ex-input w-20 sm:w-24 text-center font-bold text-xl bg-sky-50 text-sky-700 border-sky-400 focus:bg-sky-100 cursor-pointer outline-none appearance-none shadow-sm" onchange="handleMultiInput('${q.id}')">
+                                        ${selectOptionsHtml}
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="feedback-${q.id}" class="mt-2 hidden w-full text-left"></div>
                         `;
-                        itemsContainer.appendChild(qItem);
+                        leftCol.appendChild(qItem);
                     });
-                    exBlock.appendChild(itemsContainer);
+
+                    const rightCol = document.createElement('div');
+                    
+                    if (isImageMatch) {
+                        rightCol.className = 'grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200 h-fit';
+                        rightCol.innerHTML = imagePool.map(img => `
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center gap-2 hover:shadow-md transition">
+                                <span class="font-black text-white bg-sky-500 px-3 py-1 rounded-lg shadow-sm">${img.id}</span>
+                                <img src="${img.url}" class="h-20 sm:h-24 object-contain rounded-md shadow-sm border border-slate-100">
+                            </div>
+                        `).join('');
+                    } else {
+                        rightCol.className = 'flex flex-col gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200 h-fit';
+                        rightCol.innerHTML = textPool.map(t => `
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3 hover:shadow-md transition">
+                                <span class="font-black text-white bg-sky-500 w-8 h-8 rounded-lg shadow-sm flex items-center justify-center shrink-0">${t.id}</span>
+                                <span class="font-bold text-slate-700 text-lg break-words w-full">${t.text}</span>
+                            </div>
+                        `).join('');
+                    }
+
+                    matchContainer.appendChild(leftCol);
+                    matchContainer.appendChild(rightCol);
+                    exBlock.appendChild(matchContainer);
                     container.appendChild(exBlock);
                     continue; 
                 }
 
-                // COMPONENT MATCHING
-                else if (questions.some(q => q.question_type === 'matching' || q.component_name === 'MatchingImage' || q.component_name === 'MatchingText')) {
-                    // Check if it's a WordSearch component secretly mapped as matching type
-                    if (questions[0].component_name === 'WordSearchComponent') {
-                        // Let it fall through to the 'other components' loop
-                    } else {
-                        const matchContainer = document.createElement('div');
-                        matchContainer.className = 'grid grid-cols-1 md:grid-cols-2 gap-8 w-full mt-4';
-                        
-                        let imagePool = [];
-                        let textPool = [];
-                        let isImageMatch = false;
-
-                        questions.forEach(q => {
-                            let parsedOptions = Array.isArray(q.options) ? q.options : [];
-                            parsedOptions.forEach(opt => {
-                                let url = opt.image_url || opt.url;
-                                if (!url && typeof opt.text === 'string' && opt.text.includes('http')) {
-                                    let match = opt.text.match(/https?:\/\/[^\s"]+/);
-                                    if (match) url = match[0];
-                                }
-                                if (url && typeof url === 'string') {
-                                    isImageMatch = true;
-                                    if(!imagePool.find(img => img.id === opt.id)) imagePool.push({ id: opt.id, url: url });
-                                } else if (opt.text && !textPool.find(t => t.id === opt.id)) {
-                                    textPool.push({ id: opt.id, text: opt.text });
-                                }
-                            });
-
-                            let directUrl = q.image_url || q.image;
-                            if (directUrl && q.correct_answer && !imagePool.find(img => img.id === q.correct_answer)) {
-                                isImageMatch = true;
-                                imagePool.push({ id: q.correct_answer, url: directUrl });
-                            }
-                        });
-
-                        if (isImageMatch) {
-                            imagePool = imagePool.filter(img => img.url && typeof img.url === 'string' && img.url.startsWith('http'));
-                            imagePool.sort((a, b) => String(a.id).localeCompare(String(b.id)));
-                        } else {
-                            textPool.sort((a, b) => String(a.id).localeCompare(String(b.id)));
-                        }
-
-                        const leftCol = document.createElement('div');
-                        leftCol.className = 'space-y-4 flex flex-col justify-center';
-                        
-                        let selectOptionsHtml = '<option value="">Chọn</option>';
-                        if (isImageMatch) {
-                            selectOptionsHtml += imagePool.map(img => `<option value="${img.id}">${img.id}</option>`).join('');
-                        } else {
-                            selectOptionsHtml += textPool.map(t => `<option value="${t.id}">${t.id}</option>`).join('');
-                        }
-
-                        questions.forEach((q, index) => {
-                            const qItem = document.createElement('div');
-                            qItem.className = 'bg-white p-4 rounded-xl border border-slate-200 shadow-sm transition-all duration-300 w-full flex flex-col gap-2';
-                            qItem.id = `q-item-${q.id}`;
-                            let qText = q.question.replace(/^\d+\.\s*/, '');
-                            qItem.innerHTML = `
-                                <div class="flex items-center justify-between gap-3 w-full">
-                                    <div class="flex items-center gap-3 w-full">
-                                        <div class="font-bold text-white bg-slate-400 w-8 h-8 rounded-full flex items-center justify-center shrink-0">${index + 1}</div>
-                                        <div class="text-lg font-bold text-slate-800 break-words">${qText}</div>
-                                    </div>
-                                    <div class="flex flex-col items-end shrink-0">
-                                        <select id="input-ex-${q.id}-0" data-qid="${q.id}" class="ex-input w-20 sm:w-24 text-center font-bold text-xl bg-sky-50 text-sky-700 border-sky-400 focus:bg-sky-100 cursor-pointer outline-none appearance-none shadow-sm" onchange="handleMultiInput('${q.id}')">
-                                            ${selectOptionsHtml}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div id="feedback-${q.id}" class="mt-2 hidden w-full text-left"></div>
-                            `;
-                            leftCol.appendChild(qItem);
-                        });
-
-                        const rightCol = document.createElement('div');
-                        
-                        if (isImageMatch) {
-                            rightCol.className = 'grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200 h-fit';
-                            rightCol.innerHTML = imagePool.map(img => `
-                                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center gap-2 hover:shadow-md transition">
-                                    <span class="font-black text-white bg-sky-500 px-3 py-1 rounded-lg shadow-sm">${img.id}</span>
-                                    <img src="${img.url}" class="h-20 sm:h-24 object-contain rounded-md shadow-sm border border-slate-100">
-                                </div>
-                            `).join('');
-                        } else {
-                            rightCol.className = 'flex flex-col gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200 h-fit';
-                            rightCol.innerHTML = textPool.map(t => `
-                                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3 hover:shadow-md transition">
-                                    <span class="font-black text-white bg-sky-500 w-8 h-8 rounded-lg shadow-sm flex items-center justify-center shrink-0">${t.id}</span>
-                                    <span class="font-bold text-slate-700 text-lg break-words w-full">${t.text}</span>
-                                </div>
-                            `).join('');
-                        }
-
-                        matchContainer.appendChild(leftCol);
-                        matchContainer.appendChild(rightCol);
-                        exBlock.appendChild(matchContainer);
-                        container.appendChild(exBlock);
-                        continue; 
-                    }
-                }
-
-                // CÁC COMPONENT KHÁC (Grid, Multiple Choice, Reorder, Input, WordSearch)
+                // CÁC COMPONENT KHÁC 
+                let isWordSearchEx = questions.some(q => q.component_name === 'WordSearchComponent');
                 let isGrid = false;
                 if(questions.some(q => q.component_name === 'GridQAImage')) {
                     isGrid = true;
                 } else {
-                    isGrid = questions.some(q => q.image_url) && !firstQ.dialogue && !firstQ.example && !questions.some(q => q.component_name === 'WordSearchComponent');
+                    isGrid = questions.some(q => q.image_url) && !firstQ.dialogue && !firstQ.example && !isWordSearchEx && !engTitle.includes('Exercise 13');
                 }
 
                 const itemsContainer = document.createElement('div');
                 itemsContainer.className = isGrid ? 'grid grid-cols-1 sm:grid-cols-2 gap-6' : 'space-y-6';
                 
+                let hasExampleInInstruction = firstQ.instruction && firstQ.instruction.toLowerCase().includes('example');
+                let isEx8 = engTitle.includes('Exercise 8');
+                let isEx13 = engTitle.includes('Exercise 13');
+
                 questions.forEach((q, index) => {
+                    let isExample = q.is_example || (hasExampleInInstruction && index === 0) || (isEx8 && index === 0) || (isEx13 && index <= 1);
+
                     const qItem = document.createElement('div');
                     qItem.className = isGrid ? 'bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center text-center transition-all duration-300' : 'bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm transition-all duration-300';
                     qItem.id = `q-item-${q.id}`;
@@ -609,12 +865,14 @@
                     const qContent = document.createElement('div');
                     qContent.className = 'w-full text-lg font-medium text-slate-800 leading-relaxed relative flex flex-col items-center justify-center'; 
                     
-                    let imageHtml = q.image_url ? `<div class="w-full flex justify-center mb-3"><img src="${q.image_url}" class="h-32 object-contain rounded-lg shadow-sm border border-slate-100"></div>` : '';
+                    let imageHtml = q.image_url ? `<div class="w-full flex justify-center mb-3"><img src="${q.image_url}" class="h-32 object-contain rounded-lg shadow-sm border border-slate-100 mb-3"></div>` : '';
                     let audioHtml = q.audio_url ? `<button onclick="playVocabAudio('${q.audio_url}')" class="audio-btn mb-2 bg-sky-100 hover:bg-sky-200 text-sky-700 rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-sm border border-sky-300">🔊</button>` : '';
-                    let qText = q.question.replace(/^\d+\.\s*/, '');
+                    let qText = typeof q.question === 'string' ? q.question.replace(/^\d+\.\s*/, '') : '';
 
-                    // MULTIPLE CHOICE / TRUE FALSE
-                    if (q.question_type === 'multiple_choice' || q.question_type === 'true_false' || q.component_name === 'MultipleChoiceImage') {
+                    if (q.component_name === 'WordSearchComponent') {
+                        qContent.innerHTML = renderWordSearch(q);
+                    }
+                    else if (q.question_type === 'multiple_choice' || q.question_type === 'true_false' || q.component_name === 'MultipleChoiceImage') {
                         let options = q.options || [];
                         const optionsDiv = document.createElement('div');
                         optionsDiv.className = options.length === 4 ? 'grid grid-cols-1 sm:grid-cols-2 gap-3 w-full mt-4' : 'space-y-3 w-full mt-4';
@@ -631,7 +889,6 @@
                         qContent.innerHTML = `${audioHtml}${imageHtml}<div class="mb-2 font-bold w-full text-left pl-2">${qText}</div>`;
                         qContent.appendChild(optionsDiv);
                     } 
-                    // REORDER (Letters or Words)
                     else if (q.component_name === 'ReorderLetters' || q.component_name === 'ReorderWords') {
                         let isLetterReorder = q.component_name === 'ReorderLetters';
                         let placeholderTxt = isLetterReorder ? "Từ hoàn chỉnh..." : "Câu hoàn chỉnh...";
@@ -643,27 +900,6 @@
                         let extraClass = isLetterReorder ? "tracking-[0.2em] uppercase text-center" : "text-left";
                         
                         qContent.innerHTML = `${audioHtml}${imageHtml}<div class="mb-3 text-sm text-slate-500 italic font-bold w-full text-left">Bấm vào các mảnh ghép:</div><div class="flex flex-wrap gap-2 mb-4 p-4 bg-slate-50 rounded-2xl border border-slate-200 w-full">${chipsHtml}</div><div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full"><span class="text-sunny-500 font-bold text-2xl hidden sm:inline-block">➔</span> <input type="text" id="input-ex-${q.id}-0" data-qid="${q.id}" class="ex-input w-full px-4 py-2 text-blue-700 multi-input text-lg font-bold ${extraClass}" placeholder="${placeholderTxt}" readonly> <button type="button" onclick="clearReorder('${q.id}', '${isLetterReorder ? 'letter' : 'word'}')" class="bg-slate-200 text-slate-600 px-4 py-2 rounded-xl font-bold hover:bg-red-100 hover:text-red-600 shrink-0 transition shadow-sm border border-slate-300">Xóa lại</button></div>`;
-                    }
-                    // COMPONENT WORD SEARCH & SPEAKING
-                    else if (q.component_name === 'WordSearchComponent') {
-                        let matrix = q.options;
-                        if (!Array.isArray(matrix) || !Array.isArray(matrix[0])) {
-                            matrix = [
-                                ['E','R','R','O','R'],
-                                ['E','R','R','O','R']
-                            ];
-                        }
-                        
-                        let gridHtml = `<div class="overflow-x-auto w-full py-4"><div class="ws-grid" style="grid-template-columns: repeat(${matrix[0].length}, 1fr);">`;
-                        for(let r = 0; r < matrix.length; r++) {
-                            for(let c = 0; c < matrix[r].length; c++) {
-                                let char = String(matrix[r][c]).toUpperCase();
-                                gridHtml += `<div id="ws-${q.id}-${r}-${c}" class="ws-cell" onclick="if(typeof handleWSCellClick === 'function') handleWSCellClick('${q.id}', ${r}, ${c}, '${char}')">${char}</div>`;
-                            }
-                        }
-                        gridHtml += `</div></div>`;
-                        
-                        qContent.innerHTML = `${audioHtml}${imageHtml}<div class="mb-2 font-bold text-slate-700 text-left w-full">${qText}</div><div class="text-sm text-sky-600 font-bold mb-2 w-full text-center">Bấm vào các ô để chọn chữ cái tạo thành từ:</div>${gridHtml}`;
                     }
                     else if (q.question_type === 'speaking') {
                         qContent.innerHTML = `
@@ -682,7 +918,6 @@
                             </div>
                         `;
                     }
-                    // TEXT INPUT REGULAR
                     else if (q.question_type === 'input') {
                         const inputClass = q.use_word_bank ? 'ex-input word-bank-target cursor-pointer font-bold' : 'ex-input font-bold';
                         const clearEvent = q.use_word_bank ? `onclick="if(this.value){this.value=''; handleMultiInput('${q.id}');}" title="Bấm để xóa từ"` : '';
@@ -692,7 +927,8 @@
 
                         if (qText === "➔") qText = ""; 
 
-                        let isExample = q.is_example === true || q.is_example === 'true' || String(q.question).trim().startsWith('0.');
+                        // Đổi sang TEXTAREA cho các bài cần gõ câu dài (Bài 8, 13, 14, 15)
+                        let isLongText = engTitle.includes('Exercise 13') || engTitle.includes('Exercise 14') || engTitle.includes('Exercise 15') || engTitle.includes('Exercise 8');
 
                         if (hasBlankMarks) {
                             let blankCount = 0;
@@ -700,8 +936,9 @@
                                 let idx = blankCount++;
                                 let val = isExample ? (q.correct_answer.split('|')[idx] || "") : "";
                                 let readonly = isExample ? "readonly" : "";
-                                let bgClass = isExample ? "bg-slate-100 pointer-events-none border-b-slate-300" : "";
-                                return `<input type="text" id="input-ex-${q.id}-${idx}" data-qid="${q.id}" class="${inputClass} text-lg w-24 sm:w-32 mx-1 multi-input text-center text-blue-700 ${bgClass}" placeholder="..." value="${val}" ${readonly} autocomplete="off" oninput="handleMultiInput('${q.id}')" ${clearEvent}>`; 
+                                let bgClass = isExample ? "bg-slate-100 pointer-events-none border-b-slate-300 text-bamboo-600" : "bg-fae8ff text-blue-700";
+                                let widthClass = isLongText ? "w-full text-left block my-2" : "min-w-[150px] sm:min-w-[250px] max-w-full w-auto mx-1 text-center";
+                                return `<input type="text" id="input-ex-${q.id}-${idx}" data-qid="${q.id}" class="${inputClass} text-lg ${widthClass} text-blue-700 ${bgClass}" placeholder="..." value="${val}" ${readonly} autocomplete="off" oninput="handleMultiInput('${q.id}')" ${clearEvent}>`; 
                             });
                             qContent.innerHTML = `${audioHtml}${imageHtml}<div class="text-xl tracking-wide leading-[2.5rem] break-words w-full text-left">${qText}</div>`;
                         } else {
@@ -713,14 +950,21 @@
                             }
 
                             let inputsHtml = '';
+                            let hintText = q.component_name === 'GridQAImage' ? qText.split('<br>')[0] : '';
+                            if (q.component_name === 'GridQAImage' && !isExample) {
+                                displayText = `<div class="mb-3 font-bold text-slate-500 italic text-left w-full text-base">${hintText}</div>`;
+                            }
+
                             for (let idx = 0; idx < expectedParts; idx++) {
                                 let placeholder = expectedParts > 1 ? (idx === 0 ? "Viết câu hỏi..." : "Viết câu trả lời...") : "Viết đáp án...";
-                                
-                                if (isExample) {
-                                    let val = q.correct_answer.split('|')[idx] || "";
-                                    inputsHtml += `<div class="w-full flex items-center gap-2 mt-2"><span class="text-sunny-500 font-bold hidden sm:inline-block">➔</span><input type="text" id="input-ex-${q.id}-${idx}" data-qid="${q.id}" class="ex-input w-full text-lg multi-input text-left text-blue-800 font-bold pl-2 bg-slate-100 border-b-2 border-slate-300 pointer-events-none" value="${val}" readonly></div>`;
+                                let val = isExample ? (q.correct_answer.split('|')[idx] || "") : "";
+                                let readonly = isExample ? "readonly" : "";
+                                let bgClass = isExample ? "bg-slate-100 pointer-events-none border-b-slate-300 text-bamboo-700" : "bg-fae8ff text-blue-700";
+
+                                if (isLongText) {
+                                    inputsHtml += `<div class="w-full mt-2"><textarea id="input-ex-${q.id}-${idx}" data-qid="${q.id}" class="${inputClass} w-full text-lg p-3 min-h-[80px] text-left border-2 border-slate-300 outline-none resize-none shadow-inner ${bgClass}" placeholder="${placeholder}" ${readonly} autocomplete="off" oninput="handleMultiInput('${q.id}')" ${clearEvent}>${val}</textarea></div>`;
                                 } else {
-                                    inputsHtml += `<div class="w-full flex items-center gap-2 mt-2"><span class="text-sunny-500 font-bold hidden sm:inline-block">➔</span><input type="text" id="input-ex-${q.id}-${idx}" data-qid="${q.id}" class="${inputClass} w-full text-lg multi-input text-left text-blue-700 pl-2" placeholder="${placeholder}" autocomplete="off" oninput="handleMultiInput('${q.id}')" ${clearEvent}></div>`;
+                                    inputsHtml += `<div class="w-full flex items-center gap-2 mt-2"><span class="text-sunny-500 font-bold hidden sm:inline-block">➔</span><input type="text" id="input-ex-${q.id}-${idx}" data-qid="${q.id}" class="${inputClass} w-full text-lg multi-input text-left pl-2 ${bgClass}" placeholder="${placeholder}" value="${val}" ${readonly} autocomplete="off" oninput="handleMultiInput('${q.id}')" ${clearEvent}></div>`;
                                 }
                             }
                             qContent.innerHTML = `${audioHtml}${imageHtml}${displayText}<div class="w-full flex flex-col gap-2">${inputsHtml}</div>`;
@@ -748,43 +992,6 @@
             }
             updateAnswerCount();
         }
-
-        // ==========================================
-        // 6. TƯƠNG TÁC (INTERACTIONS)
-        // ==========================================
-        window.handleWSCellClick = function(qId, row, col, letter) {
-            if (!wordSearchState[qId]) wordSearchState[qId] = [];
-            const cellId = `${row}-${col}`;
-            const cellEl = document.getElementById(`ws-${qId}-${cellId}`);
-            
-            if (!cellEl || cellEl.classList.contains('cell-found')) return;
-
-            const existingIdx = wordSearchState[qId].findIndex(c => c.id === cellId);
-            if (existingIdx > -1) {
-                wordSearchState[qId].splice(existingIdx, 1);
-                cellEl.classList.remove('cell-selected');
-            } else {
-                wordSearchState[qId].push({ id: cellId, char: letter });
-                cellEl.classList.add('cell-selected');
-            }
-
-            userAnswers[qId] = wordSearchState[qId].map(c => c.char).join('');
-            
-            updateAnswerCount();
-            saveProgress();
-        };
-
-        window.handleSpeakingDone = function(qId, btn) {
-            const inputHidden = document.getElementById(`input-ex-${qId}-0`);
-            if (inputHidden) inputHidden.value = 'DONE';
-            
-            btn.innerText = 'Đã luyện tập ✅';
-            btn.classList.add('done');
-            userAnswers[qId] = 'DONE';
-            
-            updateAnswerCount();
-            saveProgress();
-        };
 
         window.handleChoiceAnswer = function(qId, selectedOptId) {
             userAnswers[qId] = selectedOptId;
@@ -826,7 +1033,7 @@
         window.fillWordBank = function(exName, word) {
             const questions = exercisesData.filter(q => q.exercise_name === exName || q.english_title === exName);
             for (let q of questions) {
-                const inputs = document.querySelectorAll(`input[data-qid="${q.id}"]`);
+                const inputs = document.querySelectorAll(`input[data-qid="${q.id}"], textarea[data-qid="${q.id}"]`);
                 let filled = false;
                 for (let input of inputs) {
                     if (input.classList.contains('word-bank-target') && input.value.trim() === "" && !input.disabled) {
@@ -845,7 +1052,7 @@
             const questions = exercisesData.filter(q => q.exercise_name === exName || q.english_title === exName);
             let usedWords = [];
             questions.forEach(q => {
-                const inputs = document.querySelectorAll(`input[data-qid="${q.id}"]`);
+                const inputs = document.querySelectorAll(`input[data-qid="${q.id}"], textarea[data-qid="${q.id}"]`);
                 inputs.forEach(inp => { if (inp.value.trim() !== "") usedWords.push(inp.value.trim().toLowerCase()); });
             });
 
@@ -866,7 +1073,7 @@
         }
 
         window.handleMultiInput = function(qId) {
-            const inputs = document.querySelectorAll(`input[data-qid="${qId}"], select[data-qid="${qId}"]`);
+            const inputs = document.querySelectorAll(`input[data-qid="${qId}"], select[data-qid="${qId}"], textarea[data-qid="${qId}"]`);
             let vals = []; 
             let hasValue = false;
             
@@ -906,11 +1113,25 @@
                     for (const [qId, ans] of Object.entries(userAnswers)) {
                         const q = exercisesData.find(e => e.id == qId);
                         if (!q) continue;
-                    
-                        if (q.component_name === 'WordSearchComponent') {
-                            if (!wordSearchState[qId]) wordSearchState[qId] = [];
-                            continue;
-                        } 
+
+                        if (q.component_name === 'WordSearchComponent' || (q.exercise_name || "").includes('Exercise 13')) {
+                            let foundArr = ans.split(',');
+                            if (foundArr.length > 0 && foundArr[0] !== "") {
+                                let state = wordSearchState[qId];
+                                if(state) {
+                                   foundArr.forEach(w => {
+                                      if (!state.found.includes(w)) state.found.push(w);
+                                      let wordBadge = document.getElementById(`ws-word-${qId}-${w}`);
+                                      if(wordBadge) {
+                                          wordBadge.classList.remove('bg-slate-100', 'text-slate-500');
+                                          wordBadge.classList.add('bg-bamboo-100', 'text-bamboo-700', 'border-bamboo-400', 'line-through');
+                                      }
+                                   });
+                                   let inputEx = document.getElementById(`input-ex-${qId}-0`);
+                                   if(inputEx) inputEx.value = ans;
+                                }
+                            }
+                        }
                         else if (q.question_type === 'speaking') {
                             const inputHidden = document.querySelector(`input[data-qid="${qId}"]`);
                             if (inputHidden && ans === 'DONE') {
@@ -923,10 +1144,9 @@
                             }
                             continue;
                         }
-                        
-                        if (q.question_type === 'input' || q.question_type === 'matching' || q.component_name === 'MatchingText' || q.component_name === 'MatchingImage' || q.component_name === 'DropdownImage' || q.component_name === 'ImageDropdown') {
+                        else if (q.question_type === 'input' || q.question_type === 'matching' || q.component_name === 'MatchingText' || q.component_name === 'MatchingImage') {
                             let vals = ans.split('|');
-                            const inputs = document.querySelectorAll(`input[data-qid="${qId}"], select[data-qid="${qId}"]`);
+                            const inputs = document.querySelectorAll(`input[data-qid="${qId}"], select[data-qid="${qId}"], textarea[data-qid="${qId}"]`);
                             inputs.forEach((inp, idx) => { if (vals[idx]) inp.value = vals[idx]; });
                             
                             if (q.component_name && (q.component_name === 'ReorderLetters' || q.component_name === 'ReorderWords')) {
@@ -955,9 +1175,6 @@
         }
         window.resetAllProgress = function() { if(confirm("Con có muốn xóa tiến độ và làm lại từ đầu không?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
 
-        // ==========================================
-        // 7. CHẤM ĐIỂM (GRADING)
-        // ==========================================
         window.submitLesson = async function() {
             const nameContainer = document.getElementById('name-container');
             const studentNameInput = document.getElementById('student-name');
@@ -972,10 +1189,13 @@
                 return;
             } else nameContainer.classList.remove('ring-4', 'ring-red-300', 'bg-red-50');
 
+            const totalQs = exercisesData.length;
             const answeredCount = Object.keys(userAnswers).length;
-            if (answeredCount < exercisesData.length) {
-                warning.innerHTML = `⚠️ Con mới làm <b>${answeredCount}/${exercisesData.length}</b> câu. Cố gắng hoàn thành nốt nhé!`;
-                warning.classList.remove('hidden'); window.scrollTo({ top: 0, behavior: 'smooth' }); return; 
+            
+            if (answeredCount < totalQs) {
+                if(!confirm(`Con mới làm ${answeredCount}/${totalQs} câu. Con có muốn NỘP TẠM để cô xem tiến độ, ngày mai mở ra làm tiếp không?`)) {
+                    return; 
+                }
             }
 
             const btn = document.getElementById('main-submit-btn');
@@ -991,28 +1211,23 @@
                     const feedbackDiv = document.getElementById(`feedback-${ex.id}`);
                     let isCorrect = false; let correctDisplay = ex.correct_answer || "";
 
-                    if (ex.component_name === 'WordSearchComponent') {
-                        let userAnsStr = normalizeString(userAnswers[ex.id] || "");
-                        let correctStrs = String(ex.correct_answer || "").split(',').map(s => normalizeString(s)).filter(s => s);
-                        
-                        isCorrect = correctStrs.length > 0 && correctStrs.every(word => userAnsStr.includes(word));
-                        correctDisplay = String(ex.correct_answer || "").replace(/,/g, ', ');
-                        
-                        if (wordSearchState[ex.id]) {
-                            wordSearchState[ex.id].forEach(cell => {
-                                const cellEl = document.getElementById(`ws-${ex.id}-${cell.id}`);
-                                if (cellEl) {
-                                    cellEl.classList.remove('cell-selected');
-                                    if (isCorrect) cellEl.classList.add('cell-found');
-                                    else cellEl.classList.add('bg-red-500', 'text-white', 'border-red-600');
-                                }
-                            });
-                        }
-                    } 
+                    let userStr = userAnswers[ex.id];
+                    if (userStr === undefined || userStr.trim() === "") {
+                        qItem.classList.add('opacity-70'); 
+                        return; 
+                    }
+
+                    if (ex.component_name === 'WordSearchComponent' || (ex.exercise_name || "").includes('Exercise 13')) {
+                        let correctArr = ex.correct_answer.split(',').map(s=>normalizeString(s)).sort();
+                        let userArr = (userAnswers[ex.id] || "").split(',').map(s=>normalizeString(s)).sort();
+                        isCorrect = (correctArr.join(',') === userArr.join(',')) && correctArr.length > 0;
+                        correctDisplay = ex.correct_answer.replace(/,/g, ', ');
+                        const inputEx = document.getElementById(`input-ex-${ex.id}-0`);
+                        if(inputEx) inputEx.disabled = true;
+                    }
                     else if (ex.question_type === 'speaking') {
                         isCorrect = (userAnswers[ex.id] === 'DONE');
                         correctDisplay = "Hoàn thành bài luyện nói";
-                        
                         if (isCorrect) {
                             score++;
                             qItem.classList.add('border-2', 'border-bamboo-200', 'bg-bamboo-50');
@@ -1020,15 +1235,14 @@
                             mistakesList.push(ex.english_title || ex.exercise_name);
                             qItem.classList.add('border-2', 'border-red-300', 'bg-red-50');
                         }
-                        
                         if (feedbackDiv) feedbackDiv.classList.add('hidden');
                         return;
                     } 
-                    else if (ex.question_type === 'input' || ex.question_type === 'matching' || ex.component_name === 'MatchingText' || ex.component_name === 'MatchingImage' || ex.component_name === 'DropdownImage' || ex.component_name === 'ImageDropdown') {
-                        const inputs = document.querySelectorAll(`input[data-qid="${ex.id}"], select[data-qid="${ex.id}"]`);
+                    else if (ex.question_type === 'input' || ex.question_type === 'matching' || ex.component_name === 'MatchingText' || ex.component_name === 'MatchingImage') {
+                        const inputs = document.querySelectorAll(`input[data-qid="${ex.id}"], select[data-qid="${ex.id}"], textarea[data-qid="${ex.id}"]`);
                         if (inputs.length > 0) {
                             inputs.forEach(inp => inp.disabled = true); 
-                            const userStr = userAnswers[ex.id] || "";
+                            
                             isCorrect = normalizeString(userStr) === normalizeString(ex.correct_answer);
                             
                             inputs.forEach(input => {
@@ -1045,11 +1259,9 @@
                             
                             correctDisplay = ex.display_correct_answer || ex.correct_answer.replace(/\|/g, '<br/>➔ ');
                         }
-                    } else if (Array.isArray(ex.options)) {
-                        let options = ex.options;
-                        const userStr = userAnswers[ex.id];
+                    } else {
+                        let options = ex.options || [];
                         const safeCorrectAns = String(ex.correct_answer || "").trim();
-                        
                         isCorrect = (userStr === safeCorrectAns);
                         const correctOpt = options.find(o => String(o.id).trim() === safeCorrectAns);
                         correctDisplay = correctOpt ? correctOpt.text : ex.correct_answer;
@@ -1057,33 +1269,31 @@
                         options.forEach(opt => {
                             const optBtn = document.querySelector(`button[data-qid="${ex.id}"][data-optid="${opt.id}"]`);
                             if (optBtn) {
-                                const indicator = optBtn.querySelector('.indicator-circle');
+                                optBtn.disabled = true;
                                 if (String(opt.id).trim() === safeCorrectAns) {
                                     optBtn.className = `option-btn w-full text-left p-3 rounded-xl border-2 bg-bamboo-50 border-bamboo-500 text-bamboo-700 font-bold text-base flex items-center gap-3 shadow-sm`;
-                                    if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-bamboo-500 text-white flex items-center justify-center border border-bamboo-500 shrink-0 indicator-circle font-bold text-sm shadow-sm';
-                                    if (!optBtn.innerHTML.includes('✅')) optBtn.innerHTML += ' <span class="ml-auto text-2xl">✅</span>';
                                 } else if (opt.id === userStr && !isCorrect) {
                                     optBtn.className = `option-btn w-full text-left p-3 rounded-xl border-2 bg-red-50 border-red-500 text-red-700 font-bold text-base flex items-center gap-3 shadow-sm opacity-80`;
-                                    if (indicator) indicator.className = 'inline-block min-w-[2.5rem] px-3 h-8 rounded-full bg-red-500 text-white flex items-center justify-center border border-red-500 shrink-0 indicator-circle font-bold text-sm shadow-sm';
-                                    if (!optBtn.innerHTML.includes('❌')) optBtn.innerHTML += ' <span class="ml-auto text-2xl">❌</span>';
                                 }
                             }
                         });
-                    } else {
-                        console.warn("[Safety] Bỏ qua component do thiếu dữ liệu options/answers: ", ex.id);
                     }
 
-                    if (feedbackDiv) {
-                        feedbackDiv.classList.remove('hidden');
-                        if (isCorrect) {
-                            score++;
-                            qItem.classList.add('border-2', 'border-bamboo-200', 'bg-bamboo-50');
-                            qItem.classList.remove('border-slate-200', 'bg-white');
-                            feedbackDiv.innerHTML = `<div class="font-extrabold text-bamboo-600 mt-2 flex items-center justify-center bg-white py-2 rounded-xl border border-bamboo-200 shadow-sm text-sm sm:text-base p-2">✨ Giỏi quá! Cô Ms. Linda khen con, đáp án đúng là: <b class="ml-1">${correctDisplay}</b> ✨</div>`;
-                        } else {
-                            mistakesList.push(ex.english_title || ex.exercise_name);
-                            qItem.classList.add('border-2', 'border-red-300', 'bg-red-50');
-                            qItem.classList.remove('border-slate-200', 'bg-white');
+                    let exTitle = ex.exercise_name || "Bài tập";
+                    if (isCorrect) {
+                        score++;
+                        qItem.classList.add('border-2', 'border-bamboo-200', 'bg-bamboo-50');
+                        qItem.classList.remove('border-slate-200', 'bg-white');
+                        if (feedbackDiv) {
+                            feedbackDiv.classList.remove('hidden');
+                            feedbackDiv.innerHTML = `<div class="font-extrabold text-bamboo-600 mt-2 flex items-center justify-center bg-white py-2 rounded-xl border border-bamboo-200 shadow-sm text-sm sm:text-base p-2">✨ Chính xác! ✨</div>`;
+                        }
+                    } else {
+                        mistakesList.push(ex.english_title || ex.exercise_name);
+                        qItem.classList.add('border-2', 'border-red-300', 'bg-red-50');
+                        qItem.classList.remove('border-slate-200', 'bg-white');
+                        if (feedbackDiv) {
+                            feedbackDiv.classList.remove('hidden');
                             feedbackDiv.innerHTML = `
                                 <div class="mt-4 bg-sky-50 border-2 border-sky-300 rounded-xl p-4 flex gap-4 items-start shadow-sm relative overflow-hidden">
                                     <div class="text-5xl animate-bounce-gentle z-10">👩‍🏫</div>
@@ -1094,8 +1304,8 @@
                                             <span class="text-slate-700 w-full mb-1">Chưa chính xác rồi, đáp án đúng phải là:</span> 
                                             <div class="bg-bamboo-100 text-bamboo-700 px-3 py-2 rounded-md border border-bamboo-300 text-lg w-full">${correctDisplay}</div>
                                         </div>
-                                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                                            ${ex.explanation}
+                                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-200 text-sm">
+                                            ${ex.explanation || ''}
                                         </div>
                                     </div>
                                 </div>
@@ -1105,22 +1315,22 @@
                 } catch (err) { console.error("Lỗi khi chấm câu:", ex.id, err); }
             });
 
-            const totalQs = exercisesData.length;
+            let progressStatus = (answeredCount < totalQs) ? `Đang làm (${answeredCount}/${totalQs})` : 'Đã hoàn thành';
             let uniqueMistakes = Array.from(new Set(mistakesList));
             let recommendations = `Xuất sắc! Con nắm rất vững kiến thức ${CURRENT_UNIT}.`;
             if (uniqueMistakes.length > 0) recommendations = "Cần ôn tập lại ở: " + uniqueMistakes.join(', ') + ".";
 
-            // LƯU ĐIỂM SỐ LÊN SUPABASE
             const urlParams = new URLSearchParams(window.location.search);
             const studentId = urlParams.get('student_id') || null;
             const assignmentId = urlParams.get('assignment_id') || null;
 
             supabaseClient.from('results').insert([{
                 student_name: studentName,
+                book_id: CURRENT_BOOK_ID, 
+                unit: CURRENT_UNIT,
                 student_id: studentId,
                 assignment_id: assignmentId,
-                unit: CURRENT_UNIT,
-                exercises_done: 'Đã hoàn thành',
+                exercises_done: progressStatus,
                 correct_count: score,
                 incorrect_count: totalQs - score,
                 recommendations: recommendations
@@ -1144,17 +1354,19 @@
                 emoji = "🏆"; 
                 fireConfetti(); 
                 document.getElementById('modal-score-10').className = "text-8xl font-black text-bamboo-600 mb-1"; 
-                sticker.classList.remove('hidden'); 
+                if (sticker) sticker.classList.remove('hidden'); 
             } else if (ratio >= 0.5) { 
                 message = "Khá lắm, cố gắng thêm nhé!"; 
                 emoji = "👍"; 
                 document.getElementById('modal-score-10').className = "text-8xl font-black text-sunny-500 mb-1"; 
                 document.getElementById('modal-title').className = "text-3xl font-extrabold text-sunny-600 mb-2"; 
+                if (sticker) sticker.classList.add('hidden');
             } else { 
                 message = "Cố gắng lên nhé, đừng nản chí!"; 
                 emoji = "💪"; 
                 document.getElementById('modal-score-10').className = "text-8xl font-black text-red-500 mb-1"; 
                 document.getElementById('modal-title').className = "text-3xl font-extrabold text-red-500 mb-2"; 
+                if (sticker) sticker.classList.add('hidden');
             }
 
             document.getElementById('modal-title').innerText = message; document.getElementById('modal-emoji').innerHTML = emoji;
@@ -1184,6 +1396,7 @@
         // TẢI TOÀN BỘ DATA KHI KHỞI ĐỘNG
         window.onload = function() { 
             fetchVocabulary(); 
+            fetchPhonics();
             fetchGrammar();
             fetchExercises(); 
         };
